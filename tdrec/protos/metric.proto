@@ -1,0 +1,16 @@
+syntax = "proto2";
+package tdrec.protos;
+
+message MetricConfig {
+    oneof metric {
+        AUC auc = 1;
+        GroupedAUC grouped_auc = 2;
+    }
+}
+
+message AUC {
+}
+
+message GroupedAUC {
+    required string grouping_key = 1;
+}

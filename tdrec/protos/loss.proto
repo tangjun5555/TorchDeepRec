@@ -1,0 +1,11 @@
+syntax = "proto2";
+package tdrec.protos;
+
+message LossConfig {
+  oneof loss {
+        BinaryCrossEntropy binary_cross_entropy = 1;
+    }
+}
+
+message BinaryCrossEntropy {
+}
