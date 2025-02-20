@@ -9,3 +9,6 @@ message MLP {
     // use batch normalization
     optional bool use_bn = 3 [default = false];
 }
+
+message FM {
+}
