@@ -1,0 +1,42 @@
+syntax = "proto2";
+package tdrec.protos;
+
+message OptimizerConfig {
+    oneof optimizer {
+        SGDOptimizer sgd_optimizer = 1;
+        AdagradOptimizer adagrad_optimizer = 2;
+        AdamOptimizer adam_optimizer = 3;
+    }
+    oneof learning_rate {
+        ConstantLR constant_learning_rate = 11;
+        ExponentialDecayLR exponential_decay_learning_rate = 12;
+    }
+}
+
+message SGDOptimizer {
+    required float lr = 1 [default = 0.01];
+}
+
+message AdagradOptimizer {
+    required float lr = 1 [default = 0.01];
+    optional float weight_decay = 2 [default = 0.0];
+}
+
+message AdamOptimizer {
+    required float lr = 1 [default = 0.01];
+    optional float beta1 = 2 [default = 0.9];
+    optional float beta2 = 3 [default = 0.999];
+    optional float weight_decay = 4 [default = 0.0];
+}
+
+message ConstantLR {
+}
+
+message ExponentialDecayLR {
+    // decay steps
+    required uint32 decay_steps = 1 [default = 10000];
+    // decay rate
+    required float decay_rate = 2 [default = 0.95];
+    // minimum learning rate
+    required float min_learning_rate = 6 [default = 0.00001];
+}

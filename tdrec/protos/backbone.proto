@@ -1,0 +1,24 @@
+syntax = "proto2";
+package tdrec.protos;
+
+import "tdrec/protos/module.proto";
+
+message Backbone {
+    repeated Block blocks = 1;
+}
+
+message Block {
+    required string name = 1;
+    repeated Input inputs = 2;
+    oneof module {
+        MLP mlp = 11;
+        FM fm = 12;
+    }
+}
+
+message Input {
+    oneof name {
+        string feature_group_name = 1;
+        string block_name = 2;
+    }
+}

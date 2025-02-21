@@ -1,0 +1,37 @@
+syntax = "proto2";
+package tdrec.protos;
+
+import "tdrec/protos/optimizer.proto";
+import "tdrec/protos/model.proto";
+
+message PipelineConfig {
+    required string model_dir = 3;
+
+    optional TrainConfig train_config = 4;
+
+//    optional EvalConfig eval_config = 5;
+//
+//    optional ExportConfig export_config = 6;
+//
+//    optional DataConfig data_config = 7;
+//
+//    repeated FeatureConfig feature_configs = 8;
+
+    optional ModelConfig model_config = 9;
+}
+
+message TrainConfig {
+    // optimizer config
+    required OptimizerConfig optimizer_config = 1;
+    // number of epochs to train models
+    optional uint32 num_epochs = 4 [default = 1];
+    // step interval for saving checkpoint
+    optional uint32 save_checkpoints_steps = 5 [default = 10000];
+    // the frequency the loss and lr will be logged during training
+    optional uint32 log_step_count_steps = 8 [default = 1000];
+}
+
+message EvalConfig {
+
+}
+
