@@ -15,7 +15,7 @@ class RawFeature(BaseFeature):
         super().__init__(feature_config)
 
     def parse(self, input_data: Dict[str, pa.Array]) -> ParsedData:
-        input_name = self.config.input_names[0]
+        input_name = self.config.input_name
         values = input_data[input_name]
         if pa.types.is_floating(values.type):
             values = values.cast(pa.float32(), safe=False)

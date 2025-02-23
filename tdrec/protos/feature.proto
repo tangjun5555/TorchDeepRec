@@ -1,6 +1,10 @@
 syntax = "proto2";
 package tdrec.protos;
 
+message FeatureManager {
+    repeated FeatureConfig features = 1;
+}
+
 message FeatureConfig {
     oneof feature {
         IdFeature id_feature = 1;
@@ -11,7 +15,7 @@ message FeatureConfig {
 message IdFeature {
     required string input_name = 1;
     // feature input, e.g. item:item_id
-    required string expression = 2;
+    optional string feature_name = 2;
     // embedding name, feature with same embedding name will share embedding
     required string embedding_name = 3;
     // embedding dimension
@@ -25,11 +29,9 @@ message IdFeature {
 message RawFeature {
     required string input_name = 1;
     // feature input, e.g. item:item_id
-    required string expression = 2;
-    // raw feature of multiple dimensions
-    optional uint32 value_dim = 3 [default = 1];
+    optional string feature_name = 2;
     // embedding name, feature with same embedding name will share embedding
-    optional string embedding_name = 4;
+    optional string embedding_name = 3;
     // embedding dimension
-    optional uint32 embedding_dim = 5;
+    optional uint32 embedding_dim = 4;
 }

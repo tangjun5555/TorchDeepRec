@@ -15,7 +15,7 @@ class IdFeature(BaseFeature):
         super().__init__(feature_config)
 
     def parse(self, input_data: Dict[str, pa.Array]) -> ParsedData:
-        input_name = self.config.input_names[0]
+        input_name = self.config.input_name
         values = input_data[input_name]
         if pa.types.is_integer(values.type):
             values = values.cast(pa.int32(), safe=False)
@@ -23,6 +23,6 @@ class IdFeature(BaseFeature):
             values = values.cast(pa.string(), safe=False)
         else:
             raise ValueError(
-                f"feature column [{input_name}] only support int or string dtype now."
+                f"{self.config} column [{input_name}] only support int or string dtype now."
             )
         return ParsedData(name=self.name, values=values.to_numpy())
