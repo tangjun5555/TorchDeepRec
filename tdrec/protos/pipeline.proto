@@ -3,19 +3,25 @@ package tdrec.protos;
 
 import "tdrec/protos/optimizer.proto";
 import "tdrec/protos/model.proto";
+import "tdrec/protos/dataset.proto";
+import "tdrec/protos/feature.proto";
 
 message PipelineConfig {
-    required string model_dir = 3;
+    optional string train_input_path = 1;
+
+    optional string eval_input_path = 2;
+
+    optional string model_dir = 3;
 
     optional TrainConfig train_config = 4;
 
-//    optional EvalConfig eval_config = 5;
-//
-//    optional ExportConfig export_config = 6;
-//
-//    optional DataConfig data_config = 7;
-//
-//    repeated FeatureConfig feature_configs = 8;
+    optional EvalConfig eval_config = 5;
+
+    optional ExportConfig export_config = 6;
+
+    optional DatasetConfig dataset_config = 7;
+
+    repeated FeatureConfig feature_configs = 8;
 
     optional ModelConfig model_config = 9;
 }
@@ -35,3 +41,6 @@ message EvalConfig {
 
 }
 
+message ExportConfig {
+
+}

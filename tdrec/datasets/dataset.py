@@ -87,3 +87,11 @@ class BaseReader(object):
         Get batch iterator.
         """
         raise NotImplementedError
+
+
+def get_dataloader(dataset_config: DatasetConfig,
+                   input_path: str,
+                   features: List[BaseFeature],
+                   mode: Mode = Mode.EVALUATE,
+                   ):
+    pass
