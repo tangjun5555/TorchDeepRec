@@ -15,7 +15,10 @@ message DatasetConfig {
     optional string delimiter = 4 [default = ","];
 
     // sample weights
-    optional string sample_weight_fields = 5;
+    optional string sample_weight_field = 5;
+
+    // mini batch size to use for training and evaluation.
+    optional uint32 batch_size = 6 [default = 1024];
 }
 
 enum DatasetType {
@@ -26,9 +29,6 @@ enum DatasetType {
 message Field {
     required string input_name = 1;
     required FieldType input_type = 2;
-    optional double default_double_value = 21;
-    optional int64 default_int64_value = 22;
-    optional string default_string_value = 23;
 }
 
 enum FieldType {

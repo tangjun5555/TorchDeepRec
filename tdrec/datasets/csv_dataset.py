@@ -14,12 +14,14 @@ class CsvDataset(BaseDataset):
     def __init__(self,
                  data_config: DatasetConfig,
                  input_path: str,
+                 **kwargs: Any,
                  ):
-        super().__init__(data_config, input_path)
-        column_names = None
+        super().__init__(data_config, input_path, **kwargs)
+        column_names = []
         column_types = {}
 
-        for f in self._data_config.input_fields:
+        for f in self._dataset_config.input_fields:
+            column_names.append(f.input_name)
             if f.HasField("input_type"):
                 column_types[f.input_name] = FIELD_TYPE_TO_PA[f.input_type]
             else:
@@ -27,6 +29,14 @@ class CsvDataset(BaseDataset):
                     f"{f.input_type} of column [{f.input_name}] "
                     "is not supported by CsvDataset."
                 )
+
+        self._reader = CsvReader(
+            input_path=input_path,
+            batch_size=self._batch_size,
+            column_names=column_names,
+            column_types=column_types,
+            delimiter=self._dataset_config.delimiter,
+        )
 
 
 class CsvReader(BaseReader):

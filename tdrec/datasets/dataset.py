@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import torch
 import pyarrow as pa
+import numpy.typing as npt
 from dataclasses import dataclass, field
-from typing import Dict, Any, Iterator
+from abc import abstractmethod
+from typing import Dict, Any, Iterator, List
+
+import torch
 from torch.utils.data import IterableDataset
 from tdrec.protos.dataset_pb2 import DatasetConfig, FieldType
+from tdrec.constant import Mode
+from tdrec.datasets.data_parser import DataParser
+from tdrec.features.feature import BaseFeature
 
 
 @dataclass
@@ -18,24 +24,45 @@ class Batch:
 @dataclass
 class ParsedData:
     name: str
-    values: torch.Tensor
+    values: npt.NDArray
 
 
 FIELD_TYPE_TO_PA = {
-    FieldType.DOUBLE: pa.float64(),
-    FieldType.INT64: pa.int64(),
+    FieldType.DOUBLE: pa.float32(),
+    FieldType.INT: pa.int32(),
     FieldType.STRING: pa.string(),
 }
 
 
 class BaseDataset(IterableDataset):
     def __init__(self,
-                 data_config: DatasetConfig,
+                 dataset_config: DatasetConfig,
                  input_path: str,
+                 features: List[BaseFeature],
+                 mode: Mode = Mode.EVALUATE,
                  ):
         super().__init__()
-        self._data_config = data_config
+        self._dataset_config = dataset_config
         self._input_path = input_path
+        self._features = features
+        self._mode = mode
+
+        self._batch_size = dataset_config.batch_size
+        self._reader = None
+
+        self._data_parser = DataParser(
+            features=features,
+            labels=list(dataset_config.label_fields),
+            sample_weight=dataset_config.sample_weight_field,
+            is_training=mode == Mode.TRAIN,
+        )
+
+    def __iter__(self) -> Iterator[Batch]:
+        for input_data in self._reader.to_batches():
+            yield self._build_batch(input_data)
+
+    def _build_batch(self, input_data: Dict[str, pa.Array]) -> Batch:
+        output_data = self._data_parser.parse(input_data)
 
 
 
@@ -48,6 +75,7 @@ class BaseReader(object):
         self._input_path = input_path
         self._batch_size = batch_size
 
+    @abstractmethod
     def to_batches(self) -> Iterator[Dict[str, pa.Array]]:
         """
         Get batch iterator.
