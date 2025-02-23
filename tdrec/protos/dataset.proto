@@ -2,22 +2,20 @@ syntax = "proto2";
 package tdrec.protos;
 
 message DatasetConfig {
-
     required DatasetType dataset_type = 1 [default = CsvDataset];
-
-    // labels
-    repeated string label_fields = 2;
 
     // the input fields must be the same number and in the
     // same order as data in csv files
-    repeated Field input_fields = 3;
+    repeated Field input_fields = 2;
+
+    // labels
+    repeated string label_fields = 3;
 
     // delimiter of column features, only used for CsvDataset
     optional string delimiter = 4 [default = ","];
 
     // sample weights
     optional string sample_weight_fields = 5;
-
 }
 
 enum DatasetType {
