@@ -50,17 +50,27 @@ class DataParser(object):
                     f"label column [{label_name}] only support int or float dtype now."
                 )
 
-        if not self._sample_weight:
+        if self._sample_weight:
+            values = input_data[self._sample_weight]
             output_data[self._sample_weight] = _to_tensor(
-                label.cast(pa.int64(), safe=False).to_numpy()
+                values.cast(pa.float32(), safe=False).to_numpy()
             )
 
         return output_data
 
     def to_batch(self, input_data: Dict[str, torch.Tensor]) -> Batch:
         features = dict()
+        for feature in self._features:
+            features[feature.name] = input_data[feature.name]
+
         labels = dict()
+        for label_name in self._labels:
+            labels[label_name] = input_data[label_name]
+
         sample_weight: torch.Tensor = None
+        if self._sample_weight:
+            sample_weight = input_data[self._sample_weight]
+
         batch = Batch(
             features=features,
             labels=labels,

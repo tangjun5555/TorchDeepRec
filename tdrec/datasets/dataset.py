@@ -64,6 +64,12 @@ class BaseDataset(IterableDataset):
     def _build_batch(self, input_data: Dict[str, pa.Array]) -> Batch:
         output_data = self._data_parser.parse(input_data)
 
+        if self._mode == Mode.PREDICT:
+            batch = self._data_parser.to_batch(output_data)
+            # TODO
+        else:
+            batch = self._data_parser.to_batch(output_data)
+        return batch
 
 
 class BaseReader(object):
