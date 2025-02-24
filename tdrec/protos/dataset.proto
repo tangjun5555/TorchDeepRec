@@ -33,6 +33,6 @@ message Field {
 
 enum FieldType {
     DOUBLE = 1;
-    INT64 = 2;
+    INT = 2;
     STRING = 3;
 }
