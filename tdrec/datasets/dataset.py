@@ -7,8 +7,10 @@ from abc import abstractmethod
 from typing import Dict, Any, Iterator, List
 
 import torch
-from torch.utils.data import IterableDataset
-from tdrec.protos.dataset_pb2 import DatasetConfig, FieldType
+from torch.utils.data import IterableDataset, DataLoader
+from tdrec.protos.dataset_pb2 import DatasetConfig, FieldType, DatasetType
+from tdrec.datasets.csv_dataset import CsvDataset
+from tdrec.datasets.parquet_dataset import ParquetDataset
 from tdrec.constant import Mode
 from tdrec.datasets.data_parser import DataParser
 from tdrec.features.feature import BaseFeature
@@ -93,5 +95,28 @@ def get_dataloader(dataset_config: DatasetConfig,
                    input_path: str,
                    features: List[BaseFeature],
                    mode: Mode = Mode.EVALUATE,
-                   ):
-    pass
+                   ) -> DataLoader:
+    dataset_name = DatasetType.Name(dataset_config.dataset_type)
+    if dataset_name == "CsvDataset":
+        dataset = CsvDataset(
+            data_config=dataset_config,
+            input_path=input_path,
+            features=features,
+            mode=mode,
+        )
+    elif dataset_name == "ParquetDataset":
+        dataset = ParquetDataset(
+            data_config=dataset_config,
+            input_path=input_path,
+            features=features,
+            mode=mode,
+        )
+    else:
+        raise ValueError(
+            f"dataset type:{dataset_name} is not supported now."
+        )
+    dataloader = DataLoader(
+        dataset=dataset,
+        batch_size=None,
+    )
+    return dataloader

@@ -55,7 +55,7 @@ def create_features(feature_configs: List[FeatureConfig]):
             )
         else:
             raise ValueError(
-                f"{feat_cls_name} is not supported now."
+                f"feature type:{feat_cls_name} is not supported now."
             )
         features.append(feature)
     return features
