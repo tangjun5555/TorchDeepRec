@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import torch
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
 
 from tdrec.datasets.dataset import Batch
 from tdrec.protos.model_pb2 import ModelConfig
-from tdrec.features.feature import Feature
+from tdrec.features.feature import BaseFeature
 
 
 class BaseModel(torch.nn.Module):
     def __init__(self,
                  model_config: ModelConfig,
-                 features: List[Feature],
+                 features: List[BaseFeature],
                  labels: List[str],
+                 sample_weight: Optional[str] = None,
                  **kwargs: Any,
                  ):
         super().__init__(**kwargs)
@@ -62,3 +63,22 @@ class BaseModel(torch.nn.Module):
             metric_results[metric_name] = metric.compute()
             metric.reset()
         return metric_results
+
+
+def create_model(model_config: ModelConfig,
+                 features: List[BaseFeature],
+                 labels: List[str],
+                 sample_weight: Optional[str] = None,
+                ) -> BaseModel:
+    model_type = model_config.WhichOneof("model")
+    # TODO
+    base_model: BaseModel = None
+    if model_type == "RankModel":
+        pass
+    elif model_type == "MultiTaskRankModel":
+        pass
+    else:
+        raise ValueError(
+            f"model type:{model_type} is not supported now."
+        )
+    return base_model

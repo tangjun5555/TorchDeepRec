@@ -9,6 +9,8 @@ message FeatureConfig {
     oneof feature {
         IdFeature id_feature = 1;
         RawFeature raw_feature = 2;
+        SequenceFeature sequence_feature = 3;
+        TagFeature tag_feature = 4;
     }
 }
 
@@ -21,9 +23,9 @@ message IdFeature {
     // embedding dimension
     required uint32 embedding_dim = 4;
     // number of hash size
-    optional uint64 hash_bucket_size = 5;
+    optional uint32 hash_bucket_size = 5;
     // number of id enumerators
-    optional uint64 num_buckets = 6;
+    optional uint32 num_buckets = 6;
 }
 
 message RawFeature {
@@ -34,4 +36,38 @@ message RawFeature {
     optional string embedding_name = 3;
     // embedding dimension
     optional uint32 embedding_dim = 4;
+}
+
+message SequenceFeature {
+    required string input_name = 1;
+    // feature input, e.g. item:item_id
+    optional string feature_name = 2;
+    // embedding name, feature with same embedding name will share embedding
+    required string embedding_name = 3;
+    // embedding dimension
+    required uint32 embedding_dim = 4;
+    // number of hash size
+    optional uint32 hash_bucket_size = 5;
+    // number of id enumerators
+    optional uint32 num_buckets = 6;
+    //
+    optional uint32 max_length = 7;
+    //
+    optional string padding_value = 8;
+}
+
+message TagFeature {
+    required string input_name = 1;
+    // feature input, e.g. item:item_id
+    optional string feature_name = 2;
+    // embedding name, feature with same embedding name will share embedding
+    required string embedding_name = 3;
+    // embedding dimension
+    required uint32 embedding_dim = 4;
+    // number of hash size
+    optional uint32 hash_bucket_size = 5;
+    // number of id enumerators
+    optional uint32 num_buckets = 6;
+    //
+    optional string pooling_type = 8;
 }
