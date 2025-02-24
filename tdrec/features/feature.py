@@ -40,7 +40,7 @@ class BaseFeature(object):
         raise NotImplementedError
 
 
-def create_features(feature_configs: List[FeatureConfig]):
+def create_features(feature_configs: List[FeatureConfig]) -> List[BaseFeature]:
     features = []
     for feature_config in feature_configs:
         config = getattr(feature_config, feature_config.WhichOneof("feature"))
