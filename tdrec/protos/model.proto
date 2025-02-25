@@ -12,7 +12,7 @@ message ModelConfig {
         RankModel rank_model = 11;
         MultiTaskRankModel multi_task_rank_model = 12;
     }
-    required Backbone backbone = 3;
+    required BackboneConfig backbone = 3;
     repeated LossConfig losses = 4;
     repeated MetricConfig metrics = 5;
 }

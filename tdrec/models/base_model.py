@@ -13,13 +13,14 @@ class BaseModel(torch.nn.Module):
                  model_config: ModelConfig,
                  features: List[BaseFeature],
                  labels: List[str],
-                 sample_weight: Optional[str] = None,
+                 sample_weight: str = None,
                  **kwargs: Any,
                  ):
         super().__init__(**kwargs)
         self._base_model_config = model_config
         self._features = features
         self._labels = labels
+        self._sample_weight = sample_weight
 
         self._model_type = model_config.WhichOneof("model")
         self._model_config = getattr(model_config, self._model_type) if self._model_type else None
@@ -63,6 +64,9 @@ class BaseModel(torch.nn.Module):
             metric_results[metric_name] = metric.compute()
             metric.reset()
         return metric_results
+
+    def build_group_input(self, batch: Batch):
+        pass
 
 
 def create_model(model_config: ModelConfig,

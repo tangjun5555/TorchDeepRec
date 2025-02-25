@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import argparse
+import os
 from typing import List, Optional
 
 from tdrec.constant import Mode
@@ -14,27 +16,49 @@ from tdrec.datasets.dataset import get_dataloader
 def train_and_evaluate(pipeline_config_path: str,
                        train_input_path: str,
                        eval_input_path: str,
-                       continue_train: Optional[bool] = True,
-                       ) -> None:
+                       continue_train: bool = True,
+                       ):
     pipeline_config = config_util.load_pipeline_config(pipeline_config_path)
-    pipeline_config.train_input_path = train_input_path
-    pipeline_config.eval_input_path = eval_input_path
 
     dataset_config = pipeline_config.dataset_config
     features = create_features(list(pipeline_config.feature_configs))
     train_dataloader = get_dataloader(
         dataset_config=dataset_config,
-        input_path=pipeline_config.train_input_path,
+        input_path=train_input_path,
         features=features,
         mode=Mode.TRAIN,
     )
     evaluate_dataloader = get_dataloader(
         dataset_config=dataset_config,
-        input_path=pipeline_config.eval_input_path,
+        input_path=eval_input_path,
         features=features,
         mode=Mode.EVALUATE,
     )
 
+
+def evaluate(pipeline_config_path: str,
+             eval_input_path: str,
+             eval_result_filename: str = None,
+             ):
+    pipeline_config = config_util.load_pipeline_config(pipeline_config_path)
+    if not eval_result_filename:
+        eval_result_filename = os.path.join(pipeline_config.model_dir, "eval_result.txt")
+
+
+def export(pipeline_config_path: str,
+           export_dir: str,
+           ):
+    pipeline_config = config_util.load_pipeline_config(pipeline_config_path)
+    ori_pipeline_config = copy.copy(pipeline_config)
+
+    if os.path.exists(export_dir):
+        raise RuntimeError(f"directory {export_dir} already exist.")
+    features = create_features(list(pipeline_config.feature_configs))
+
+
+def predict(pipeline_config_path: str,
+            ):
+    pass
 
 
 if __name__ == "__main__":

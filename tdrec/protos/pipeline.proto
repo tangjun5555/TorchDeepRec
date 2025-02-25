@@ -7,11 +7,8 @@ import "tdrec/protos/dataset.proto";
 import "tdrec/protos/feature.proto";
 
 message PipelineConfig {
-    optional string train_input_path = 1;
 
-    optional string eval_input_path = 2;
-
-    optional string model_dir = 3;
+    required string model_dir = 3;
 
     optional TrainConfig train_config = 4;
 

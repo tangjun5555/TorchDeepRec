@@ -14,7 +14,12 @@ class RankModel(BaseModel):
                  model_config: ModelConfig,
                  features: List[BaseFeature],
                  labels: List[str],
+                 sample_weight: str = None,
                  **kwargs: Any,
                  ):
-        super().__init__(model_config, features, labels, **kwargs)
+        super().__init__(model_config, features, labels, sample_weight, **kwargs)
 
+        self._label_name = labels[0]
+
+    def build_input(self, batch: Batch) -> Dict[str, torch.Tensor]:
+        pass
