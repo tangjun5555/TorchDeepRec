@@ -1,11 +1,11 @@
 syntax = "proto2";
 package tdrec.protos;
 
-message FeatureManager {
-    repeated FeatureConfig features = 1;
+message FeatureConfig {
+    repeated FeatureUnit features = 1;
 }
 
-message FeatureConfig {
+message FeatureUnit {
     oneof feature {
         IdFeature id_feature = 1;
         RawFeature raw_feature = 2;

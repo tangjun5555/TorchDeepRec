@@ -4,6 +4,7 @@ import torch
 from typing import List, Any, Dict, Optional
 
 from tdrec.datasets.dataset import Batch
+from tdrec.datasets.data_parser import DataParser
 from tdrec.protos.model_pb2 import ModelConfig
 from tdrec.features.feature import BaseFeature
 
@@ -41,6 +42,12 @@ class BaseModel(torch.nn.Module):
         """
         raise NotImplementedError
 
+    def init_loss(self) -> None:
+        """
+        Initialize loss modules.
+        """
+        raise NotImplementedError
+
     def compute_loss(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Calculate the loss.
@@ -50,6 +57,12 @@ class BaseModel(torch.nn.Module):
             a dict of predicted result.
         :return:
             a dict of loss result.
+        """
+        raise NotImplementedError
+
+    def init_metric(self) -> None:
+        """
+        Initialize metric modules.
         """
         raise NotImplementedError
 
@@ -86,3 +99,36 @@ def create_model(model_config: ModelConfig,
             f"model type:{model_type} is not supported now."
         )
     return base_model
+
+
+class TrainWrapper(torch.nn.Module):
+    def __init__(self, model: BaseModel) -> None:
+        super().__init__()
+        self.model = model
+        self.model.init_loss()
+        self.model.init_metric()
+
+    def forward(self, batch: Batch):
+        predictions = self.model.predict(batch)
+        losses = self.model.compute_loss(batch, predictions)
+        total_loss = torch.stack(list(losses.values())).sum()
+
+        losses = {k: v.detach() for k, v in losses.items()}
+        predictions = {k: v.detach() for k, v in predictions.items()}
+        return total_loss, (losses, predictions, batch)
+
+
+class ScriptWrapper(torch.nn.Module):
+    def __init__(self, model: BaseModel) -> None:
+        super().__init__()
+        self.model = model
+        self._features = self.model._features
+        self._data_parser = DataParser(self._features)
+
+    def get_batch(self, data: Dict[str, torch.Tensor], device: torch.device = "cpu") -> Batch:
+        """
+        Get batch.
+        """
+        batch = self._data_parser.to_batch(data)
+        batch = batch.to(device, non_blocking=True)
+        return batch

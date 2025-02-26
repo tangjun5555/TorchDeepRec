@@ -18,9 +18,9 @@ message PipelineConfig {
 
     optional DatasetConfig dataset_config = 7;
 
-    repeated FeatureConfig feature_configs = 8;
+    required FeatureConfig feature_config = 8;
 
-    optional ModelConfig model_config = 9;
+    required ModelConfig model_config = 9;
 }
 
 message TrainConfig {
