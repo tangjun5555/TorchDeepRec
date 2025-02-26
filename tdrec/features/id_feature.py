@@ -3,7 +3,8 @@
 from typing import Dict
 import pyarrow as pa
 
-from tdrec.datasets.dataset import ParsedData
+import torch
+from tdrec.datasets.dataset import ParsedData, Batch
 from tdrec.features.feature import BaseFeature
 from tdrec.protos.feature_pb2 import FeatureConfig
 
@@ -23,6 +24,9 @@ class IdFeature(BaseFeature):
             values = values.cast(pa.string(), safe=False)
         else:
             raise ValueError(
-                f"{self.config} column [{input_name}] only support int or string dtype now."
+                f"feature[{self.name}] only support int or string dtype now."
             )
-        return ParsedData(name=self.name, values=values.to_numpy())
+        return ParsedData(name=self.name, values= torch.Tensor(values.to_numpy()))
+
+    def to_dense(self, batch: Batch) -> torch.Tensor:
+        pass

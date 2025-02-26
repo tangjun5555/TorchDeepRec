@@ -28,7 +28,7 @@ class Batch:
 @dataclass
 class ParsedData:
     name: str
-    values: npt.NDArray
+    values: torch.Tensor
 
 
 FIELD_TYPE_TO_PA = {

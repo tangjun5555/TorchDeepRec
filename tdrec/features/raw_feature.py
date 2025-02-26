@@ -21,6 +21,6 @@ class RawFeature(BaseFeature):
             values = values.cast(pa.float32(), safe=False)
         else:
             raise ValueError(
-                f"feature column [{input_name}] only support double dtype now."
+                f"feature[{self.name}] only support double dtype now."
             )
         return ParsedData(name=self.name, values=values.to_numpy())
