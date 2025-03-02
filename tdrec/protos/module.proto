@@ -13,6 +13,13 @@ message MLP {
 message FM {
 }
 
+message DIN {
+    // input feature group name
+    required string feature_group = 1;
+    // mlp config for target attention score
+    required MLP attn_mlp = 2;
+}
+
 message MMoE {
     required uint32 num_expert = 1;
     required uint32 num_task = 2;
