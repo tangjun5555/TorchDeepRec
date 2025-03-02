@@ -12,3 +12,10 @@ message MLP {
 
 message FM {
 }
+
+message MMoE {
+    required uint32 num_expert = 1;
+    required uint32 num_task = 2;
+    required MLP expert_mlp = 3;
+    optional MLP gate_mlp = 4;
+}
