@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import torch
-from typing import List, Optional
+from typing import List
 from tdrec.utils.load_class import load_by_path
 
 
@@ -9,7 +9,7 @@ class Perceptron(torch.nn.Module):
     def __init__(self,
                  in_features: int,
                  out_features: int,
-                 activation: Optional[str] = "torch.nn.ReLU",
+                 activation: str = "torch.nn.ReLU",
                  use_bn: bool = False,
                  ):
         super().__init__()
@@ -42,7 +42,7 @@ class MLP(torch.nn.Module):
     def __init__(self,
                  in_features: int,
                  hidden_units: List[int],
-                 activation: Optional[str] = "torch.nn.ReLU",
+                 activation: str = "torch.nn.ReLU",
                  use_bn: bool = False,
                  ):
         super().__init__()
