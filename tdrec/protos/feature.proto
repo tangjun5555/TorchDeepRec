@@ -22,8 +22,6 @@ message IdFeature {
     required string embedding_name = 3;
     // embedding dimension
     required uint32 embedding_dim = 4;
-    // number of hash size
-    optional uint32 hash_bucket_size = 5;
     // number of id enumerators
     optional uint32 num_buckets = 6;
 }
@@ -46,14 +44,8 @@ message SequenceFeature {
     required string embedding_name = 3;
     // embedding dimension
     required uint32 embedding_dim = 4;
-    // number of hash size
-    optional uint32 hash_bucket_size = 5;
     // number of id enumerators
     optional uint32 num_buckets = 6;
-    //
-    optional uint32 max_length = 7;
-    //
-    optional string padding_value = 8;
 }
 
 message TagFeature {
@@ -64,10 +56,14 @@ message TagFeature {
     required string embedding_name = 3;
     // embedding dimension
     required uint32 embedding_dim = 4;
-    // number of hash size
-    optional uint32 hash_bucket_size = 5;
     // number of id enumerators
     optional uint32 num_buckets = 6;
     //
-    optional string pooling_type = 8;
+    optional Pooling pooling = 8;
+}
+
+enum Pooling {
+    SUM = 1;
+    MEAN = 2;
+    MAX = 3;
 }
