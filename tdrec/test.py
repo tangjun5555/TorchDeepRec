@@ -5,10 +5,11 @@ import unittest
 
 
 class CommonTest(unittest.TestCase):
-    def test_feature_manager(self):
-        from tdrec.protos.feature_pb2 import FeatureManager, IdFeature
 
-        feature_manager = FeatureManager()
+    def test_feature_manager(self):
+        from tdrec.protos.feature_pb2 import FeatureConfig, IdFeature
+
+        feature_manager = FeatureConfig()
         print(feature_manager.features, type(list(feature_manager.features)))
 
         id_feature = IdFeature()

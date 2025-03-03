@@ -7,12 +7,11 @@ import pyarrow as pa
 
 import torch
 from tdrec.features.feature import BaseFeature
-from tdrec.datasets.dataset import Batch
+from tdrec.constant import Batch
 
 
 def _to_tensor(x: npt.NDArray) -> torch.Tensor:
-    if not x.flags.writeable:
-        x = np.array(x)
+    x = np.array(x)
     return torch.from_numpy(x)
 
 

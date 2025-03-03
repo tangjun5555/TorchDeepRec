@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import numpy as np
 import pyarrow as pa
 import unittest
 
@@ -26,4 +27,4 @@ class DatasetTest(unittest.TestCase):
             delimiter= "\t",
         )
         batchs = next(reader.to_batches())
-        print(batchs)
+        print(batchs["c25"])
