@@ -4,6 +4,7 @@ import pyarrow as pa
 from typing import List, Dict
 from abc import abstractmethod
 
+import torch
 from tdrec.protos.feature_pb2 import FeatureUnit
 from tdrec.constant import ParsedData
 from tdrec.utils.load_class import get_register_class_meta
@@ -39,6 +40,10 @@ class BaseFeature(object, metaclass=_feature_meta_cls):
         Return:
             parsed feature data.
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def to_dense(self, parsed_value: torch.Tensor) -> torch.Tensor:
         raise NotImplementedError
 
 

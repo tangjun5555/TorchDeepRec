@@ -11,7 +11,8 @@ from tdrec.constant import Batch
 
 
 def _to_tensor(x: npt.NDArray) -> torch.Tensor:
-    x = np.array(x)
+    if not x.flags.writeable:
+        x = np.array(x)
     return torch.from_numpy(x)
 
 
@@ -32,15 +33,11 @@ class DataParser(object):
 
         for feature in self._features:
             feat_data = feature.parse(input_data)
-            output_data[feature.name] = _to_tensor(feat_data.values)
+            output_data[feature.name] = feat_data
 
         for label_name in self._labels:
             label = input_data[label_name]
-            if pa.types.is_floating(label.type):
-                output_data[label_name] = _to_tensor(
-                    label.cast(pa.float32(), safe=False).to_numpy()
-                )
-            elif pa.types.is_integer(label.type):
+            if pa.types.is_integer(label.type):
                 output_data[label_name] = _to_tensor(
                     label.cast(pa.int64(), safe=False).to_numpy()
                 )
@@ -52,9 +49,8 @@ class DataParser(object):
         if self._sample_weight:
             values = input_data[self._sample_weight]
             output_data[self._sample_weight] = _to_tensor(
-                values.cast(pa.float32(), safe=False).to_numpy()
+                values.cast(pa.float64(), safe=False).to_numpy()
             )
-
         return output_data
 
     def to_batch(self, input_data: Dict[str, torch.Tensor]) -> Batch:

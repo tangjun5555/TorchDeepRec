@@ -19,19 +19,16 @@ class IdFeature(BaseFeature):
         input_name = self.config.input_name
         values = input_data[input_name]
         if pa.types.is_integer(values.type):
-            values = values.cast(pa.int32(), safe=False)
-        elif pa.types.is_string(values.type):
-            values = values.cast(pa.string(), safe=False)
+            values = values.cast(pa.int64(), safe=False)
         else:
             raise ValueError(
                 f"feature[{self.name}] only support int or string dtype now."
             )
-        return ParsedData(name=self.name, values= torch.Tensor(values.to_numpy()))
+        return ParsedData(name=self.name, values=torch.Tensor(values.to_numpy()))
 
-    def parse_from_raw_data(self, input_data: Dict[str, torch.Tensor]) -> ParsedData:
-        input_name = self.config.input_name
-        values = input_data[input_name]
-
-        # if values.dtype == torch.
-
-
+    def to_dense(self, parsed_value: torch.Tensor) -> torch.Tensor:
+        embedding = torch.nn.Embedding(
+            num_embeddings=self.config.num_buckets,
+            embedding_dim=self.config.embedding_dim,
+        )
+        return embedding(parsed_value)
