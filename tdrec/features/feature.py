@@ -4,15 +4,17 @@ import pyarrow as pa
 from typing import List, Dict
 from abc import abstractmethod
 
-from tdrec.protos.feature_pb2 import FeatureConfig
-from tdrec.datasets.dataset import ParsedData
-from tdrec.features.id_feature import IdFeature
-from tdrec.features.raw_feature import RawFeature
+from tdrec.protos.feature_pb2 import FeatureUnit
+from tdrec.constant import ParsedData
+from tdrec.utils.load_class import get_register_class_meta
+
+_FEATURE_CLASS_MAP = {}
+_feature_meta_cls = get_register_class_meta(_FEATURE_CLASS_MAP)
 
 
-class BaseFeature(object):
+class BaseFeature(object, metaclass=_feature_meta_cls):
     def __init__(self,
-                 feature_config: FeatureConfig,
+                 feature_config: FeatureUnit,
                  ):
         fc_type = feature_config.WhichOneof("feature")
         self._feature_config = feature_config
@@ -40,22 +42,11 @@ class BaseFeature(object):
         raise NotImplementedError
 
 
-def create_features(feature_configs: List[FeatureConfig]) -> List[BaseFeature]:
+def create_features(feature_configs: List[FeatureUnit]) -> List[BaseFeature]:
     features = []
     for feature_config in feature_configs:
-        config = getattr(feature_config, feature_config.WhichOneof("feature"))
-        feat_cls_name = config.__class__.__name__
-        if feat_cls_name == "IdFeature":
-            feature = IdFeature(
-                feature_config=feature_config,
-            )
-        elif feat_cls_name == "RawFeature":
-            feature = RawFeature(
-                feature_config=feature_config,
-            )
-        else:
-            raise ValueError(
-                f"feature type:{feat_cls_name} is not supported now."
-            )
+        feature = BaseFeature.create_class(
+            feature_config=feature_config,
+        )
         features.append(feature)
     return features

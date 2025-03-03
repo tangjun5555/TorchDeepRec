@@ -1,44 +1,27 @@
 # -*- coding: utf-8 -*-
 
 import pyarrow as pa
-import numpy.typing as npt
-from dataclasses import dataclass, field
 from abc import abstractmethod
 from typing import Dict, Any, Iterator, List
 
-import torch
 from torch.utils.data import IterableDataset, DataLoader
 from tdrec.protos.dataset_pb2 import DatasetConfig, FieldType, DatasetType
-from tdrec.datasets.csv_dataset import CsvDataset
-from tdrec.datasets.parquet_dataset import ParquetDataset
-from tdrec.constant import Mode
+from tdrec.constant import Mode, Batch
 from tdrec.datasets.data_parser import DataParser
 from tdrec.features.feature import BaseFeature
+from tdrec.utils.load_class import get_register_class_meta
 
 
-@dataclass
-class Batch:
-    features: Dict[str, torch.Tensor] = field(default_factory=dict)
-    labels: Dict[str, torch.Tensor] = field(default_factory=dict)
-    sample_weight: torch.Tensor = field(default_factory=torch.Tensor)
-
-
-
-
-@dataclass
-class ParsedData:
-    name: str
-    values: torch.Tensor
-
-
+_DATASET_CLASS_MAP = {}
+_dataset_meta_cls = get_register_class_meta(_DATASET_CLASS_MAP)
 FIELD_TYPE_TO_PA = {
-    FieldType.DOUBLE: pa.float32(),
-    FieldType.INT: pa.int32(),
+    FieldType.DOUBLE: pa.float64(),
+    FieldType.INT: pa.int64(),
     FieldType.STRING: pa.string(),
 }
 
 
-class BaseDataset(IterableDataset):
+class BaseDataset(IterableDataset, metaclass=_dataset_meta_cls):
     def __init__(self,
                  dataset_config: DatasetConfig,
                  input_path: str,
@@ -99,24 +82,13 @@ def get_dataloader(dataset_config: DatasetConfig,
                    mode: Mode = Mode.EVALUATE,
                    ) -> DataLoader:
     dataset_name = DatasetType.Name(dataset_config.dataset_type)
-    if dataset_name == "CsvDataset":
-        dataset = CsvDataset(
-            data_config=dataset_config,
-            input_path=input_path,
-            features=features,
-            mode=mode,
-        )
-    elif dataset_name == "ParquetDataset":
-        dataset = ParquetDataset(
-            data_config=dataset_config,
-            input_path=input_path,
-            features=features,
-            mode=mode,
-        )
-    else:
-        raise ValueError(
-            f"dataset type:{dataset_name} is not supported now."
-        )
+    dataset_cls = BaseDataset.create_class(dataset_name)
+    dataset = dataset_cls(
+        data_config=dataset_config,
+        input_path=input_path,
+        features=features,
+        mode=mode,
+    )
     dataloader = DataLoader(
         dataset=dataset,
         batch_size=None,

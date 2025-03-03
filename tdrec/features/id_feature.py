@@ -4,14 +4,14 @@ from typing import Dict
 import pyarrow as pa
 
 import torch
-from tdrec.datasets.dataset import ParsedData, Batch
+from tdrec.constant import ParsedData
 from tdrec.features.feature import BaseFeature
-from tdrec.protos.feature_pb2 import FeatureConfig
+from tdrec.protos.feature_pb2 import FeatureUnit
 
 
 class IdFeature(BaseFeature):
     def __init__(self,
-                 feature_config: FeatureConfig,
+                 feature_config: FeatureUnit,
                  ):
         super().__init__(feature_config)
 
@@ -28,5 +28,10 @@ class IdFeature(BaseFeature):
             )
         return ParsedData(name=self.name, values= torch.Tensor(values.to_numpy()))
 
-    def to_dense(self, batch: Batch) -> torch.Tensor:
-        pass
+    def parse_from_raw_data(self, input_data: Dict[str, torch.Tensor]) -> ParsedData:
+        input_name = self.config.input_name
+        values = input_data[input_name]
+
+        # if values.dtype == torch.
+
+

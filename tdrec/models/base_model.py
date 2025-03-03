@@ -78,12 +78,9 @@ class BaseModel(torch.nn.Module):
             metric.reset()
         return metric_results
 
-    def build_group_input(self, batch: Batch, group_name: str):
-        group_features = {}
 
-
-
-        return group_features
+    def build_backbone_network(self):
+        pass
 
 
 def create_model(model_config: ModelConfig,

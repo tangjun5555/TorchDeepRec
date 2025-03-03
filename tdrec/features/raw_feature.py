@@ -3,14 +3,14 @@
 from typing import Dict
 import pyarrow as pa
 
-from tdrec.datasets.dataset import ParsedData
+from tdrec.constant import ParsedData
 from tdrec.features.feature import BaseFeature
-from tdrec.protos.feature_pb2 import FeatureConfig
+from tdrec.protos.feature_pb2 import FeatureUnit
 
 
 class RawFeature(BaseFeature):
     def __init__(self,
-                 feature_config: FeatureConfig,
+                 feature_config: FeatureUnit,
                  ):
         super().__init__(feature_config)
 
