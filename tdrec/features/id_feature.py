@@ -22,7 +22,7 @@ class IdFeature(BaseFeature):
             values = values.cast(pa.int64(), safe=False)
         else:
             raise ValueError(
-                f"feature[{self.name}] only support int or string dtype now."
+                f"feature[{self.name}] only support int dtype input now."
             )
         return ParsedData(name=self.name, values=torch.Tensor(values.to_numpy()))
 

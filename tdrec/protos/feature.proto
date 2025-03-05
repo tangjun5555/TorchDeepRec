@@ -19,9 +19,9 @@ message IdFeature {
     // feature input, e.g. item:item_id
     optional string feature_name = 2;
     // embedding dimension
-    required uint32 embedding_dim = 4;
+    required uint32 embedding_dim = 3;
     // number of id enumerators
-    optional uint32 num_buckets = 6;
+    optional uint32 num_buckets = 4;
 }
 
 message RawFeature {
@@ -29,9 +29,11 @@ message RawFeature {
     // feature input, e.g. item:item_id
     optional string feature_name = 2;
      // raw feature of multiple dimensions
-    optional uint32 value_dim = 6 [default = 1];
+    optional uint32 value_dim = 3 [default = 1];
     // embedding dimension
     optional uint32 embedding_dim = 4 [default = 0];
+    //
+    optional string separator = 5 [default = "|"];
 }
 
 message SequenceFeature {
@@ -39,9 +41,11 @@ message SequenceFeature {
     // feature input, e.g. item:item_id
     optional string feature_name = 2;
     // embedding dimension
-    required uint32 embedding_dim = 4;
+    required uint32 embedding_dim = 3;
     // number of id enumerators
-    optional uint32 num_buckets = 6;
+    optional uint32 num_buckets = 4;
+    //
+    optional string separator = 5 [default = "|"];
 }
 
 message TagFeature {
@@ -49,15 +53,9 @@ message TagFeature {
     // feature input, e.g. item:item_id
     optional string feature_name = 2;
     // embedding dimension
-    required uint32 embedding_dim = 4;
+    required uint32 embedding_dim = 3;
     // number of id enumerators
-    optional uint32 num_buckets = 6;
+    optional uint32 num_buckets = 4;
     //
-    optional Pooling pooling = 8;
-}
-
-enum Pooling {
-    SUM = 1;
-    MEAN = 2;
-    MAX = 3;
+    optional string separator = 5 [default = "|"];
 }

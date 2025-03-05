@@ -27,4 +27,13 @@ class DatasetTest(unittest.TestCase):
             delimiter= "\t",
         )
         batchs = next(reader.to_batches())
-        print(batchs["c25"])
+        print("\n" + "##" * 20 + "\n")
+        print(batchs["c25"], type(batchs["c25"]))
+
+        c25 = [str(x) for x in batchs["c25"]]
+        print("\n" + "##" * 20 + "\n")
+        print(c25, type(c25))
+
+        d1 = np.array(batchs["d1"])
+        print("\n" + "##" * 20 + "\n")
+        print(d1, type(d1))
