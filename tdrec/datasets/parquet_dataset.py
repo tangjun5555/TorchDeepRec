@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import glob
+import random
 import pyarrow as pa
 import pyarrow.dataset as ds
 from typing import List, Dict, Iterator, Any
@@ -42,6 +43,7 @@ class ParquetReader(BaseReader):
             self._input_files.extend(glob.glob(input_path))
         if len(self._input_files) == 0:
             raise RuntimeError(f"No parquet files exist in {self._input_path}.")
+        random.shuffle(self._input_files)
 
     def to_batches(self) -> Iterator[Dict[str, pa.Array]]:
         input_files = self._input_files
