@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import torch
+from abc import abstractmethod
 from typing import List, Any, Dict, Optional
 
 from tdrec.datasets.dataset import Batch
@@ -32,6 +33,7 @@ class BaseModel(torch.nn.Module):
     def forward(self, batch: Batch) -> Dict[str, torch.Tensor]:
         return self.predict(batch)
 
+    @abstractmethod
     def predict(self, batch: Batch) -> Dict[str, torch.Tensor]:
         """
         Predict the model.
@@ -77,7 +79,6 @@ class BaseModel(torch.nn.Module):
             metric_results[metric_name] = metric.compute()
             metric.reset()
         return metric_results
-
 
     def build_backbone_network(self):
         pass

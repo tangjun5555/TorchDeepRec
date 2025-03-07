@@ -19,6 +19,7 @@ class RankModel(BaseModel):
                  ):
         super().__init__(model_config, features, labels, sample_weight, **kwargs)
 
+        self._num_class = 2
         self._label_name = labels[0]
 
     def build_input(self, batch: Batch) -> Dict[str, torch.Tensor]:
