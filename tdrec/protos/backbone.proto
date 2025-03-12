@@ -21,6 +21,8 @@ message BlockConfig {
     oneof module {
         MLP mlp = 11;
         FM fm = 12;
+        DIN din = 13;
+        PPNet ppnet = 14;
     }
 }
 

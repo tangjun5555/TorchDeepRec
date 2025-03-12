@@ -8,6 +8,8 @@ from tdrec.datasets.dataset import Batch
 from tdrec.datasets.data_parser import DataParser
 from tdrec.protos.model_pb2 import ModelConfig
 from tdrec.features.feature import BaseFeature
+from tdrec.features.feature_group import FeatureGroup
+from tdrec.modules.backbone import Backbone
 
 
 class BaseModel(torch.nn.Module):
@@ -29,6 +31,13 @@ class BaseModel(torch.nn.Module):
 
         self._metric_modules = torch.nn.ModuleDict()
         self._loss_modules = torch.nn.ModuleDict()
+
+        feature_group_dict = dict()
+        for feature_group in model_config.feature_groups:
+           feature_group_dict[feature_group.group_name] = FeatureGroup(feature_group, features)
+        self._feature_group_dict = feature_group_dict
+
+        self._backbone = Backbone(model_config.backbone, )
 
     def forward(self, batch: Batch) -> Dict[str, torch.Tensor]:
         return self.predict(batch)

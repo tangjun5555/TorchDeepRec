@@ -22,5 +22,5 @@ class RankModel(BaseModel):
         self._num_class = 2
         self._label_name = labels[0]
 
-    def build_input(self, batch: Batch) -> Dict[str, torch.Tensor]:
+    def predict(self, batch: Batch) -> Dict[str, torch.Tensor]:
         pass
