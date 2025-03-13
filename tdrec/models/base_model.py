@@ -10,9 +10,13 @@ from tdrec.protos.model_pb2 import ModelConfig
 from tdrec.features.feature import BaseFeature
 from tdrec.features.feature_group import FeatureGroup
 from tdrec.modules.backbone import Backbone
+from tdrec.utils.load_class import get_register_class_meta
+
+_MODEL_CLASS_MAP = {}
+_meta_cls = get_register_class_meta(_MODEL_CLASS_MAP)
 
 
-class BaseModel(torch.nn.Module):
+class BaseModel(torch.nn.Module, metaclass=_meta_cls):
     def __init__(self,
                  model_config: ModelConfig,
                  features: List[BaseFeature],
@@ -37,7 +41,7 @@ class BaseModel(torch.nn.Module):
            feature_group_dict[feature_group.group_name] = FeatureGroup(feature_group, features)
         self._feature_group_dict = feature_group_dict
 
-        self._backbone = Backbone(model_config.backbone, )
+        self._backbone = Backbone(model_config.backbone, feature_group_dict)
 
     def forward(self, batch: Batch) -> Dict[str, torch.Tensor]:
         return self.predict(batch)
@@ -53,12 +57,14 @@ class BaseModel(torch.nn.Module):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def init_loss(self) -> None:
         """
         Initialize loss modules.
         """
         raise NotImplementedError
 
+    @abstractmethod
     def compute_loss(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Calculate the loss.
@@ -71,26 +77,24 @@ class BaseModel(torch.nn.Module):
         """
         raise NotImplementedError
 
+    @abstractmethod
     def init_metric(self) -> None:
         """
         Initialize metric modules.
         """
         raise NotImplementedError
 
-    def compute_metric(self) -> Dict[str, torch.Tensor]:
+    @abstractmethod
+    def compute_metric(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Calculate the metric.
         :return:
             a dict of metric result.
         """
-        metric_results = {}
-        for metric_name, metric in self._metric_modules.items():
-            metric_results[metric_name] = metric.compute()
-            metric.reset()
-        return metric_results
+        raise NotImplementedError
 
-    def build_backbone_network(self):
-        pass
+    def build_backbone_network(self, batch: Batch) -> torch.Tensor:
+        return self._backbone(batch)
 
 
 def create_model(model_config: ModelConfig,
@@ -99,17 +103,10 @@ def create_model(model_config: ModelConfig,
                  sample_weight: Optional[str] = None,
                 ) -> BaseModel:
     model_type = model_config.WhichOneof("model")
-    # TODO
-    base_model: BaseModel = None
-    if model_type == "RankModel":
-        pass
-    elif model_type == "MultiTaskRankModel":
-        pass
-    else:
-        raise ValueError(
-            f"model type:{model_type} is not supported now."
-        )
-    return base_model
+    model_cls_name = getattr(model_config, model_type).__class__.__name__
+    model_cls = BaseModel.create_class(model_cls_name)
+    model = model_cls(model_config, features, labels, sample_weight)
+    return model
 
 
 class TrainWrapper(torch.nn.Module):

@@ -19,7 +19,7 @@ class Backbone(torch.nn.Module):
         self._feature_group_dict = feature_group_dict
         self._block_outputs = {}
 
-    def forward(self,  batch: Batch) -> torch.Tensor:
+    def forward(self, batch: Batch) -> torch.Tensor:
         feature_group_values = dict()
         for k, v in self._feature_group_dict.items():
             feature_group_values[k] = v.build_group_input(batch)
