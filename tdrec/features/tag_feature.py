@@ -7,7 +7,7 @@ import pyarrow as pa
 import torch
 from tdrec.constant import ParsedData
 from tdrec.features.feature import BaseFeature
-from tdrec.protos.feature_pb2 import FeatureUnit, Pooling
+from tdrec.protos.feature_pb2 import FeatureUnit
 from tdrec.utils.string_util import to_int_list
 
 
@@ -35,6 +35,7 @@ class TagFeature(BaseFeature):
         embedding = torch.nn.Embedding(
             num_embeddings=self.config.num_buckets,
             embedding_dim=self.config.embedding_dim,
+            padding_idx=0,
         )
         res = embedding(parsed_value)
         res = torch.sum(res, dim=1, keepdim=False)

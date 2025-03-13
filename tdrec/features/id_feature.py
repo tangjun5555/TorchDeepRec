@@ -30,5 +30,6 @@ class IdFeature(BaseFeature):
         embedding = torch.nn.Embedding(
             num_embeddings=self.config.num_buckets,
             embedding_dim=self.config.embedding_dim,
+            padding_idx=0,
         )
         return embedding(parsed_value)
