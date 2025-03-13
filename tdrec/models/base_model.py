@@ -110,6 +110,7 @@ def create_model(model_config: ModelConfig,
 
 
 class TrainWrapper(torch.nn.Module):
+    """Model train wrapper for pipeline."""
     def __init__(self, model: BaseModel) -> None:
         super().__init__()
         self.model = model
@@ -127,6 +128,7 @@ class TrainWrapper(torch.nn.Module):
 
 
 class ScriptWrapper(torch.nn.Module):
+    """Model inference wrapper for jit.script."""
     def __init__(self, model: BaseModel) -> None:
         super().__init__()
         self.model = model
@@ -140,3 +142,23 @@ class ScriptWrapper(torch.nn.Module):
         batch = self._data_parser.to_batch(data)
         batch = batch.to(device, non_blocking=True)
         return batch
+
+    def forward(self, data: Dict[str, torch.Tensor], device: torch.device = "cpu"):
+        batch = self.get_batch(data, device)
+        return self.model.predict(batch)
+
+
+class CudaExportWrapper(ScriptWrapper):
+    """Model inference wrapper for cuda export(aot/trt)."""
+    def forward(self, data: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        """Predict the model.
+
+        Args:
+            data (dict): a dict of input data for Batch.
+
+        Return:
+            predictions (dict): a dict of predicted result.
+        """
+        batch = self._data_parser.to_batch(data)
+        batch = batch.to(torch.device("cuda"), non_blocking=True)
+        return self.model.predict(batch)
