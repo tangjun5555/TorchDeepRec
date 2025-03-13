@@ -4,31 +4,16 @@ package tdrec.protos;
 import "tdrec/protos/module.proto";
 
 message BackboneConfig {
-    // a few blocks generating a DAG
     repeated BlockConfig blocks = 1;
-    // the names of output blocks, will be merge into a tensor
-    repeated string concat_blocks = 3;
-    // the names of output blocks, return as a list or single tensor
-    repeated string output_blocks = 4;
-    // optional top mlp layer
-    optional MLP top_mlp = 5;
 }
 
 message BlockConfig {
     required string name = 1;
-    repeated Input inputs = 2;
-    optional int32 input_concat_axis = 3 [default = -1];
+    repeated string feature_group_names = 2;
     oneof module {
         MLP mlp = 11;
         FM fm = 12;
         DIN din = 13;
         PPNet ppnet = 14;
-    }
-}
-
-message Input {
-    oneof name {
-        string feature_group_name = 1;
-        string block_name = 2;
     }
 }
