@@ -8,12 +8,12 @@ import json
 import torch
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from tdrec.protos.pipeline_pb2 import TrainConfig, EvalConfig
+from tdrec.protos.pipeline_pb2 import TrainConfig
 from tdrec.utils import checkpoint_util
 from tdrec.utils.logging_util import ProgressLogger, logger
 
 
-def log_train(
+def _log_train(
         step: int,
         losses: Dict[str, torch.Tensor],
         param_groups: List[Dict[str, Any]],
@@ -42,7 +42,7 @@ def log_train(
             summary_writer.add_scalar(f"lr/g{i}", g["lr"], step)
 
 
-def train(model: torch.nn.Module,
+def train_model(model: torch.nn.Module,
           optimizer: torch.optim.Optimizer,
           train_dataloader: DataLoader,
           train_config: TrainConfig,
@@ -71,7 +71,7 @@ def train(model: torch.nn.Module,
                 break
             losses, _ = model(batch)
             if i_step % train_config.log_step_count_steps:
-                log_train(
+                _log_train(
                     i_step,
                     losses,
                     param_groups=optimizer.param_groups,
@@ -86,7 +86,7 @@ def train(model: torch.nn.Module,
                     optimizer,
                 )
         logger.info(f"Finished Train Model Epoch {i_epoch + 1}.")
-    log_train(
+    _log_train(
         i_step,
         losses,
         param_groups=optimizer.param_groups,
@@ -102,9 +102,9 @@ def train(model: torch.nn.Module,
         summary_writer.close()
 
 
-def evaluate(model: torch.nn.Module,
+def evaluate_model(model: torch.nn.Module,
              eval_dataloader: DataLoader,
-             eval_result_filename: str = "eval_result.txt",
+             eval_result_filename: str,
              global_step: int = None,
              global_epoch: int = None,
              summary_writer: SummaryWriter = None,
