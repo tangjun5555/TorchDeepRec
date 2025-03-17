@@ -61,12 +61,14 @@ def train_model(model: torch.nn.Module,
     for i_epoch in epoch_iter:
         if i_step == 0 and ckpt_path is not None:
             last_ckpt_step = checkpoint_util.get_checkpoint_step(ckpt_path)
-        step_iter = itertools.count(i_step)
+            i_step = last_ckpt_step
+        step_iter = itertools.count(i_step + 1)
         train_iterator = iter(train_dataloader)
         for i_step in step_iter:
             try:
                 batch = next(train_iterator)
             except StopIteration:
+                i_step -= 1
                 break
             losses, _ = model(batch)
             if i_step % train_config.log_step_count_steps:
@@ -127,10 +129,10 @@ def evaluate_model(model: torch.nn.Module,
             try:
                 batch = next(eval_iterator)
             except StopIteration:
+                i_step -= 1
                 break
             _, (losses, predictions, batch) = model(batch)
             _model.update_metric(predictions, batch, losses)
-
     metric_result = _model.compute_metric()
 
     metric_str = " ".join([f"{k}:{v:0.6f}" for k, v in metric_result.items()])
