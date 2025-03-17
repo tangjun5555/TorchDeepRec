@@ -44,6 +44,13 @@ def train_and_evaluate(pipeline_config_path: str,
     )
     model = TrainWrapper(model)
     optimizer = create_optimizer(pipeline_config.train_config.optimizer_config)
+    if continue_train:
+        checkpoint_util.restore_model(
+            checkpoint_dir=checkpoint_util.latest_checkpoint(model_dir)[0],
+            model=model,
+            optimizer=optimizer,
+        )
+
     train_model(
         model=model,
         optimizer=optimizer,
@@ -55,6 +62,7 @@ def train_and_evaluate(pipeline_config_path: str,
     evaluate_model(
         model=model,
         eval_dataloader=eval_dataloader,
+        model_dir=model_dir,
         eval_result_filename=os.path.join(model_dir, "train_eval_result.txt"),
     )
 
@@ -88,6 +96,7 @@ def evaluate(pipeline_config_path: str,
     evaluate_model(
         model=model,
         eval_dataloader=eval_dataloader,
+        model_dir=model_dir,
         eval_result_filename=os.path.join(pipeline_config.model_dir, "eval_result.txt"),
     )
 

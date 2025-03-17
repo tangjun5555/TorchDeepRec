@@ -43,12 +43,12 @@ def _log_train(
 
 
 def train_model(model: torch.nn.Module,
-          optimizer: torch.optim.Optimizer,
-          train_dataloader: DataLoader,
-          train_config: TrainConfig,
-          model_dir: str,
-          ckpt_path: str = None,
-          ):
+                optimizer: torch.optim.Optimizer,
+                train_dataloader: DataLoader,
+                train_config: TrainConfig,
+                model_dir: str,
+                ckpt_path: str = None,
+                ):
     model.train()
     epoch_iter = range(train_config.num_epochs)
 
@@ -61,7 +61,6 @@ def train_model(model: torch.nn.Module,
     for i_epoch in epoch_iter:
         if i_step == 0 and ckpt_path is not None:
             last_ckpt_step = checkpoint_util.get_checkpoint_step(ckpt_path)
-            checkpoint_util.restore_model(ckpt_path, model, optimizer)
         step_iter = itertools.count(i_step)
         train_iterator = iter(train_dataloader)
         for i_step in step_iter:
@@ -103,16 +102,19 @@ def train_model(model: torch.nn.Module,
 
 
 def evaluate_model(model: torch.nn.Module,
-             eval_dataloader: DataLoader,
-             eval_result_filename: str,
-             global_step: int = None,
-             global_epoch: int = None,
-             summary_writer: SummaryWriter = None,
-             ) -> Dict[str, torch.Tensor]:
+                   eval_dataloader: DataLoader,
+                   model_dir: str,
+                   eval_result_filename: str,
+                   global_step: int = None,
+                   global_epoch: int = None,
+                   ) -> Dict[str, torch.Tensor]:
     model.eval()
     _model = model.model
     eval_iterator = iter(eval_dataloader)
     step_iter = itertools.count(0)
+
+    plogger = ProgressLogger(desc="Evaluating Model")
+    summary_writer = SummaryWriter(os.path.join(model_dir, "eval"))
 
     desc_suffix = ""
     if global_epoch:
@@ -140,5 +142,4 @@ def evaluate_model(model: torch.nn.Module,
     if summary_writer:
         for k, v in metric_result.items():
             summary_writer.add_scalar(f"metric/{k}", v, global_step or 0)
-
     return metric_result
