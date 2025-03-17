@@ -76,7 +76,7 @@ class RankModel(BaseModel):
             else:
                 raise ValueError(f"{metric_type} is not supported for this model")
 
-    def compute_metric(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def update_metric(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         metrics = {}
         label = batch.labels[self._label_name]
         for metric_cfg in self._base_model_config.metrics:

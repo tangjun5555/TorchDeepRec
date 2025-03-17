@@ -44,7 +44,7 @@ def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.
     logger.info(f"Successfully restored checkpoint from {checkpoint_dir}.")
 
 
-def _get_checkpoint_step(ckpt_path: str) -> int:
+def get_checkpoint_step(ckpt_path: str) -> int:
     """
     Get checkpoint step from ckpt_path.
     Args:
@@ -74,6 +74,6 @@ def latest_checkpoint(model_dir: str) -> Tuple[Optional[str], int]:
         latest_step: step of the latest checkpoint.
     """
     ckpt_metas = glob.glob(os.path.join(model_dir, "model.ckpt-*"))
-    ckpt_metas.sort(key=lambda x: _get_checkpoint_step(x))
+    ckpt_metas.sort(key=lambda x: get_checkpoint_step(x))
     latest_ckpt_path = ckpt_metas[-1]
-    return latest_ckpt_path, _get_checkpoint_step(latest_ckpt_path)
+    return latest_ckpt_path, get_checkpoint_step(latest_ckpt_path)

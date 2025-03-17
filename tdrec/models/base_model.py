@@ -85,13 +85,25 @@ class BaseModel(torch.nn.Module, metaclass=_meta_cls):
         raise NotImplementedError
 
     @abstractmethod
-    def compute_metric(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def update_metric(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Calculate the metric.
         :return:
             a dict of metric result.
         """
         raise NotImplementedError
+
+    def compute_metric(self) -> Dict[str, torch.Tensor]:
+        """Compute metric.
+
+        Return:
+            metric_result (dict): a dict of metric result tensor.
+        """
+        metric_results = {}
+        for metric_name, metric in self._metric_modules.items():
+            metric_results[metric_name] = metric.compute()
+            metric.reset()
+        return metric_results
 
     def build_backbone_network(self, batch: Batch) -> torch.Tensor:
         return self._backbone(batch)
