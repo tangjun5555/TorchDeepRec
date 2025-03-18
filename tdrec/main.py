@@ -10,7 +10,7 @@ from tdrec.datasets.dataset import get_dataloader
 from tdrec.models.base_model import create_model, TrainWrapper
 from tdrec.pipeline import train_model, evaluate_model
 from tdrec.utils import checkpoint_util
-from tdrec.optimizer.optimizer_builder import create_optimizer
+from tdrec.optimizer.optimizer_builder import create_optimizer, create_scheduler
 
 
 def train_and_evaluate(pipeline_config_path: str,
@@ -43,7 +43,9 @@ def train_and_evaluate(pipeline_config_path: str,
         sample_weight=dataset_config.sample_weight_field,
     )
     model = TrainWrapper(model)
-    optimizer = create_optimizer(pipeline_config.train_config.optimizer_config)
+    optimizer_cls, optimizer_kwargs = create_optimizer(pipeline_config.train_config.optimizer_config)
+    optimizer = optimizer_cls(**optimizer_kwargs)
+    lr_scheduler = create_scheduler(optimizer, pipeline_config.train_config.optimizer_config)
     if continue_train:
         checkpoint_util.restore_model(
             checkpoint_dir=checkpoint_util.latest_checkpoint(model_dir)[0],
@@ -54,6 +56,7 @@ def train_and_evaluate(pipeline_config_path: str,
     train_model(
         model=model,
         optimizer=optimizer,
+        lr_scheduler=lr_scheduler,
         train_dataloader=train_dataloader,
         train_config=pipeline_config.train_config,
         model_dir=model_dir,
@@ -101,6 +104,27 @@ def evaluate(pipeline_config_path: str,
     )
 
 
+def export(pipeline_config_path: str):
+    pipeline_config = config_util.load_pipeline_config(pipeline_config_path)
+    model_dir = pipeline_config.model_dir
+    export_dir = os.path.join(model_dir, "export")
+
+    dataset_config = pipeline_config.dataset_config
+    features = create_features(list(pipeline_config.feature_configs))
+
+    model = create_model(
+        pipeline_config.model_config,
+        features,
+        list(dataset_config.label_fields),
+        sample_weight=dataset_config.sample_weight_field,
+    )
+    model = TrainWrapper(model)
+    checkpoint_util.restore_model(
+        checkpoint_dir=checkpoint_util.latest_checkpoint(model_dir)[0],
+        model=model,
+    )
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -114,7 +138,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--pipeline_config_path",
         type=str,
-        default=None,
+        required=True,
         help="Path to pipeline config file.",
     )
     parser.add_argument(

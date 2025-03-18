@@ -8,7 +8,9 @@ import json
 import torch
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+
 from tdrec.protos.pipeline_pb2 import TrainConfig
+from tdrec.optimizer.lr_scheduler import BaseLR
 from tdrec.utils import checkpoint_util
 from tdrec.utils.logging_util import ProgressLogger, logger
 
@@ -44,16 +46,25 @@ def _log_train(
 
 def train_model(model: torch.nn.Module,
                 optimizer: torch.optim.Optimizer,
+                lr_scheduler: BaseLR,
                 train_dataloader: DataLoader,
                 train_config: TrainConfig,
                 model_dir: str,
                 ckpt_path: str = None,
+                global_step: int = None,
+                global_epoch: int = None,
                 ):
     model.train()
     epoch_iter = range(train_config.num_epochs)
 
     plogger = ProgressLogger(desc="Training Model")
     summary_writer = SummaryWriter(model_dir)
+
+    desc_suffix = ""
+    if global_epoch:
+        desc_suffix += f" Epoch-{global_epoch}"
+    if global_step:
+        desc_suffix += f" model-{global_step}"
 
     last_ckpt_step = 0
     i_step = 0
@@ -71,6 +82,13 @@ def train_model(model: torch.nn.Module,
                 i_step -= 1
                 break
             losses, _ = model(batch)
+
+            optimizer.zero_grad()
+            losses.backward()
+            optimizer.step()
+            if not lr_scheduler.by_epoch:
+                lr_scheduler.step()
+
             if i_step % train_config.log_step_count_steps:
                 _log_train(
                     i_step,
@@ -86,6 +104,8 @@ def train_model(model: torch.nn.Module,
                     model,
                     optimizer,
                 )
+        if lr_scheduler.by_epoch:
+            lr_scheduler.step()
         logger.info(f"Finished Train Model Epoch {i_epoch + 1}.")
     _log_train(
         i_step,
