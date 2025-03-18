@@ -7,7 +7,6 @@ import "tdrec/protos/metric.proto";
 import "tdrec/protos/module.proto";
 
 message ModelConfig {
-    optional string model_name = 1;
     repeated FeatureGroupConfig feature_groups = 2;
     oneof model {
         RankModel rank_model = 11;
