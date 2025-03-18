@@ -50,30 +50,18 @@ def train_model(model: torch.nn.Module,
                 train_dataloader: DataLoader,
                 train_config: TrainConfig,
                 model_dir: str,
-                ckpt_path: str = None,
-                global_step: int = None,
-                global_epoch: int = None,
-                ):
+                global_step: int,
+                ) -> int:
     model.train()
     epoch_iter = range(train_config.num_epochs)
 
     plogger = ProgressLogger(desc="Training Model")
     summary_writer = SummaryWriter(model_dir)
 
-    desc_suffix = ""
-    if global_epoch:
-        desc_suffix += f" Epoch-{global_epoch}"
-    if global_step:
-        desc_suffix += f" model-{global_step}"
-
-    last_ckpt_step = 0
-    i_step = 0
+    i_step = global_step
     losses = {}
     for i_epoch in epoch_iter:
-        if i_step == 0 and ckpt_path is not None:
-            last_ckpt_step = checkpoint_util.get_checkpoint_step(ckpt_path)
-            i_step = last_ckpt_step
-        step_iter = itertools.count(i_step + 1)
+        step_iter = itertools.count(i_step)
         train_iterator = iter(train_dataloader)
         for i_step in step_iter:
             try:
@@ -98,9 +86,8 @@ def train_model(model: torch.nn.Module,
                     summary_writer=summary_writer,
                 )
             if i_step % train_config.save_checkpoints_steps:
-                last_ckpt_step = i_step
                 checkpoint_util.save_model(
-                    os.path.join(model_dir, f"model.ckpt-{i_step + last_ckpt_step}"),
+                    os.path.join(model_dir, f"model.ckpt-{i_step}"),
                     model,
                     optimizer,
                 )
@@ -115,20 +102,20 @@ def train_model(model: torch.nn.Module,
         summary_writer=summary_writer,
     )
     checkpoint_util.save_model(
-        os.path.join(model_dir, f"model.ckpt-{i_step + last_ckpt_step}"),
+        os.path.join(model_dir, f"model.ckpt-{i_step}"),
         model,
         optimizer,
     )
     if summary_writer is not None:
         summary_writer.close()
+    return i_step
 
 
 def evaluate_model(model: torch.nn.Module,
                    eval_dataloader: DataLoader,
                    model_dir: str,
                    eval_result_filename: str,
-                   global_step: int = None,
-                   global_epoch: int = None,
+                   global_step: int,
                    ) -> Dict[str, torch.Tensor]:
     model.eval()
     _model = model.model
@@ -139,8 +126,6 @@ def evaluate_model(model: torch.nn.Module,
     summary_writer = SummaryWriter(os.path.join(model_dir, "eval"))
 
     desc_suffix = ""
-    if global_epoch:
-        desc_suffix += f" Epoch-{global_epoch}"
     if global_step:
         desc_suffix += f" model-{global_step}"
 

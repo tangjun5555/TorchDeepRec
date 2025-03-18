@@ -4,6 +4,7 @@ import argparse
 import os
 
 from tdrec.constant import Mode
+from tdrec.version import __version__ as tdrec_version
 from tdrec.utils import config_util
 from tdrec.features.feature import create_features
 from tdrec.datasets.dataset import get_dataloader
@@ -52,22 +53,32 @@ def train_and_evaluate(pipeline_config_path: str,
             model=model,
             optimizer=optimizer,
         )
+        global_step = checkpoint_util.latest_checkpoint(model_dir)[0]
+    else:
+        global_step = 0
 
-    train_model(
+    global_step = train_model(
         model=model,
         optimizer=optimizer,
         lr_scheduler=lr_scheduler,
         train_dataloader=train_dataloader,
         train_config=pipeline_config.train_config,
         model_dir=model_dir,
-        ckpt_path=checkpoint_util.latest_checkpoint(model_dir)[0] if continue_train else None,
+        global_step=global_step,
     )
     evaluate_model(
         model=model,
         eval_dataloader=eval_dataloader,
         model_dir=model_dir,
         eval_result_filename=os.path.join(model_dir, "train_eval_result.txt"),
+        global_step=global_step,
     )
+
+    config_util.save_message(
+        pipeline_config, os.path.join(pipeline_config.model_dir, "pipeline.config")
+    )
+    with open(os.path.join(pipeline_config.model_dir, "version"), "w") as f:
+        f.write(tdrec_version + "\n")
 
 
 def evaluate(pipeline_config_path: str,
@@ -156,7 +167,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--continue_train",
         action="store_true",
-        default=False,
+        default=True,
         help="continue train using existing model_dir",
     )
     args, extra_args = parser.parse_known_args()
