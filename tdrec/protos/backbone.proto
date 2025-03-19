@@ -5,6 +5,7 @@ import "tdrec/protos/module.proto";
 
 message BackboneConfig {
     repeated BlockConfig blocks = 1;
+    required uint32 output_dim = 3;
 }
 
 message BlockConfig {

@@ -105,9 +105,6 @@ class BaseModel(torch.nn.Module, metaclass=_meta_cls):
             metric.reset()
         return metric_results
 
-    def build_backbone_network(self, batch: Batch) -> torch.Tensor:
-        return self._backbone(batch)
-
 
 def create_model(model_config: ModelConfig,
                  features: List[BaseFeature],

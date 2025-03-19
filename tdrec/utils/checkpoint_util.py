@@ -23,6 +23,8 @@ def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.opt
 
 
 def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None):
+    if not checkpoint_dir:
+        return
     model_ckpt_path = os.path.join(checkpoint_dir, "model")
     optim_ckpt_path = os.path.join(checkpoint_dir, "optimizer")
     if os.path.exists(model_ckpt_path):
@@ -73,7 +75,11 @@ def latest_checkpoint(model_dir: str) -> Tuple[Optional[str], int]:
         latest_ckpt_path: latest checkpoint path.
         latest_step: step of the latest checkpoint.
     """
+    if not os.path.exists(model_dir):
+        return None, 0
     ckpt_metas = glob.glob(os.path.join(model_dir, "model.ckpt-*"))
+    if not ckpt_metas:
+        return None, 0
     ckpt_metas.sort(key=lambda x: get_checkpoint_step(x))
     latest_ckpt_path = ckpt_metas[-1]
     return latest_ckpt_path, get_checkpoint_step(latest_ckpt_path)

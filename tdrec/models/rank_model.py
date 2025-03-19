@@ -22,15 +22,20 @@ class RankModel(BaseModel):
                  **kwargs: Any,
                  ):
         super().__init__(model_config, features, labels, sample_weight, **kwargs)
+        print("Using RankModel.")
         self._num_class = 1
         self._label_name = labels[0]
         self._sample_weight_name = sample_weight
 
+        self.top_mlp = MLP(in_features=model_config.backbone.output_dim, **config_to_kwargs(self._model_config.top_mlp))
+        self.linear = torch.nn.Linear(self._model_config.top_mlp.hidden_units[-1], 1)
+
+
     def predict(self, batch: Batch) -> Dict[str, torch.Tensor]:
         predictions = dict()
-        backbone_output = self.build_backbone_network(batch)
-        output = MLP(in_features=backbone_output.shape[1], **self._model_config.top_mlp)(backbone_output)
-        output = torch.nn.Linear(self._model_config.top_mlp.hidden_units[-1], 1)(output)
+        backbone_output = self._backbone(batch)
+        output = self.top_mlp(backbone_output)
+        output = self.linear(output)
         output = torch.squeeze(output, dim=1)
         predictions["logits"] = output
         predictions["probs"] = torch.sigmoid(output)
