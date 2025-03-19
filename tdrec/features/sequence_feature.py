@@ -29,7 +29,7 @@ class SequenceFeature(BaseFeature):
             raise ValueError(
                 f"feature[{self.name}] only support string input dtype now."
             )
-        return ParsedData(name=self.name, values=torch.Tensor(res))
+        return ParsedData(name=self.name, values=torch.IntTensor(res))
 
     def to_dense(self, parsed_value: torch.Tensor) -> torch.Tensor:
         embedding = torch.nn.Embedding(

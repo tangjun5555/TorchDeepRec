@@ -33,7 +33,7 @@ class RawFeature(BaseFeature):
             raise ValueError(
                 f"feature[{self.name}] only support double|string dtype input now."
             )
-        return ParsedData(name=self.name, values=torch.Tensor(res))
+        return ParsedData(name=self.name, values=torch.FloatTensor(res))
 
     def to_dense(self, parsed_value: torch.Tensor) -> torch.Tensor:
         if self.config.embedding_dim:

@@ -24,7 +24,7 @@ class IdFeature(BaseFeature):
             raise ValueError(
                 f"feature[{self.name}] only support int dtype input now."
             )
-        return ParsedData(name=self.name, values=torch.Tensor(values.to_numpy()))
+        return ParsedData(name=self.name, values=torch.IntTensor(values.to_numpy()))
 
     def to_dense(self, parsed_value: torch.Tensor) -> torch.Tensor:
         embedding = torch.nn.Embedding(
