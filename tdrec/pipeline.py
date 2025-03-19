@@ -69,10 +69,10 @@ def train_model(model: torch.nn.Module,
             except StopIteration:
                 i_step -= 1
                 break
-            losses, _ = model(batch)
+            total_loss, (losses, _, _) = model(batch)
 
             optimizer.zero_grad()
-            losses.backward()
+            total_loss.backward()
             optimizer.step()
             if not lr_scheduler.by_epoch:
                 lr_scheduler.step()
@@ -136,8 +136,8 @@ def evaluate_model(model: torch.nn.Module,
             except StopIteration:
                 i_step -= 1
                 break
-            _, (losses, predictions, batch) = model(batch)
-            _model.update_metric(predictions, batch, losses)
+            _, (_, predictions, _) = model(batch)
+            _model.update_metric(batch, predictions)
     metric_result = _model.compute_metric()
 
     metric_str = " ".join([f"{k}:{v:0.6f}" for k, v in metric_result.items()])
