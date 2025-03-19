@@ -7,25 +7,24 @@ import "tdrec/protos/dataset.proto";
 import "tdrec/protos/feature.proto";
 
 message PipelineConfig {
+    required string model_dir = 1;
 
-    required string model_dir = 3;
+    optional TrainConfig train_config = 2;
 
-    optional TrainConfig train_config = 4;
+    optional DatasetConfig dataset_config = 3;
 
-    optional DatasetConfig dataset_config = 7;
+    required FeatureConfig feature_config = 4;
 
-    required FeatureConfig feature_config = 8;
-
-    required ModelConfig model_config = 9;
+    required ModelConfig model_config = 5;
 }
 
 message TrainConfig {
     // optimizer config
     required OptimizerConfig optimizer_config = 1;
     // number of epochs to train models
-    optional uint32 num_epochs = 4 [default = 1];
+    optional uint32 num_epochs = 2 [default = 1];
     // step interval for saving checkpoint
-    optional uint32 save_checkpoints_steps = 5 [default = 10000];
+    optional uint32 save_checkpoints_steps = 3 [default = 10000];
     // the frequency the loss and lr will be logged during training
-    optional uint32 log_step_count_steps = 8 [default = 1000];
+    optional uint32 log_step_count_steps = 4 [default = 1000];
 }
