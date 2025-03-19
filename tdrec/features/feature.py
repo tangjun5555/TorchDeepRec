@@ -50,7 +50,9 @@ class BaseFeature(object, metaclass=_feature_meta_cls):
 def create_features(feature_configs: List[FeatureUnit]) -> List[BaseFeature]:
     features = []
     for feature_config in feature_configs:
-        feature = BaseFeature.create_class(
+        oneof_feat_config = getattr(feature_config, feature_config.WhichOneof("feature"))
+        feat_cls_name = oneof_feat_config.__class__.__name__
+        feature = BaseFeature.create_class(feat_cls_name)(
             feature_config=feature_config,
         )
         features.append(feature)

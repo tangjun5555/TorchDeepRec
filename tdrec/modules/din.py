@@ -18,7 +18,7 @@ class DIN(torch.nn.Module):
                  feature_group: str,
                  attn_mlp: Dict[str, Any],
                  ) -> None:
-        super().__init__(input)
+        super().__init__()
         self._query_dim = query_dim
         self._sequence_dim = sequence_dim
         assert query_dim == sequence_dim

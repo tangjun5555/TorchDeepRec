@@ -9,7 +9,7 @@ from tdrec.features.feature import BaseFeature
 
 
 class FeatureGroup(object):
-    def __int__(self,
+    def __init__(self,
                 feature_group_config: FeatureGroupConfig,
                 features: List[BaseFeature],
                 ):

@@ -23,7 +23,7 @@ def train_and_evaluate(pipeline_config_path: str,
     model_dir = pipeline_config.model_dir
 
     dataset_config = pipeline_config.dataset_config
-    features = create_features(list(pipeline_config.feature_configs))
+    features = create_features(list(pipeline_config.feature_config.features))
     train_dataloader = get_dataloader(
         dataset_config=dataset_config,
         input_path=train_input_path,
@@ -45,7 +45,7 @@ def train_and_evaluate(pipeline_config_path: str,
     )
     model = TrainWrapper(model)
     optimizer_cls, optimizer_kwargs = create_optimizer(pipeline_config.train_config.optimizer_config)
-    optimizer = optimizer_cls(**optimizer_kwargs)
+    optimizer = optimizer_cls(params=model.named_parameters(), **optimizer_kwargs)
     lr_scheduler = create_scheduler(optimizer, pipeline_config.train_config.optimizer_config)
     if continue_train:
         checkpoint_util.restore_model(

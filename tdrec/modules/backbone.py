@@ -11,10 +11,11 @@ from tdrec.modules.din import DIN
 
 
 class Backbone(torch.nn.Module):
-    def __init(self,
+    def __init__(self,
                config: BackboneConfig,
                feature_group_dict: Dict[str, FeatureGroup],
                ):
+        super().__init__()
         self._config = config
         self._feature_group_dict = feature_group_dict
         self._block_outputs = {}
