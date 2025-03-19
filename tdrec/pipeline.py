@@ -77,15 +77,16 @@ def train_model(model: torch.nn.Module,
             if not lr_scheduler.by_epoch:
                 lr_scheduler.step()
 
-            if i_step % train_config.log_step_count_steps:
-                _log_train(
-                    i_step,
-                    losses,
-                    param_groups=optimizer.param_groups,
-                    plogger=plogger,
-                    summary_writer=summary_writer,
-                )
-            if i_step % train_config.save_checkpoints_steps:
+            if i_step % train_config.log_step_count_steps == 0:
+                # _log_train(
+                #     i_step,
+                #     losses,
+                #     param_groups=optimizer.param_groups,
+                #     plogger=plogger,
+                #     summary_writer=summary_writer,
+                # )
+                print(i_step, total_loss.tolist())
+            if i_step % train_config.save_checkpoints_steps == 0:
                 checkpoint_util.save_model(
                     os.path.join(model_dir, f"model.ckpt-{i_step}"),
                     model,

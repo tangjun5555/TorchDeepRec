@@ -5,7 +5,6 @@ import glob
 from typing import Tuple, Optional
 
 import torch
-from tdrec.utils.logging_util import logger
 from torch.distributed.checkpoint import (
     load,
     save,
@@ -19,7 +18,7 @@ def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.opt
             optimizer.state_dict(),
             checkpoint_id=os.path.join(checkpoint_dir, "optimizer"),
         )
-    logger.info(f"Successfully saved checkpoint to {checkpoint_dir}.")
+    print(f"Successfully saved checkpoint to {checkpoint_dir}.")
 
 
 def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None):
@@ -34,7 +33,7 @@ def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.
             checkpoint_id=model_ckpt_path,
         )
         model.load_state_dict(state_dict)
-        logger.info(f"Successfully restored model state from {checkpoint_dir}.")
+        print(f"Successfully restored model state from {checkpoint_dir}.")
     if optimizer and os.path.exists(optim_ckpt_path):
         state_dict = optimizer.state_dict()
         load(
@@ -42,8 +41,7 @@ def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.
             checkpoint_id=optim_ckpt_path,
         )
         optimizer.load_state_dict(state_dict)
-        logger.info(f"Successfully restored optimizer state from {checkpoint_dir}.")
-    logger.info(f"Successfully restored checkpoint from {checkpoint_dir}.")
+        print(f"Successfully restored optimizer state from {checkpoint_dir}.")
 
 
 def get_checkpoint_step(ckpt_path: str) -> int:
