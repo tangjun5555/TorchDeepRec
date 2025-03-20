@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from tdrec.utils.logging_util import logger
-
-
 def to_int_list(value: str, sep: str="|", default_value: int = 0):
     split = value.split(sep)
     res = []
@@ -10,7 +7,7 @@ def to_int_list(value: str, sep: str="|", default_value: int = 0):
         try:
             res.append(int(x))
         except Exception:
-            logger.warn(f"{value} is not int list format.")
+            print(f"{value} is not int list format.")
             res.append(default_value)
     return res
 
@@ -22,6 +19,6 @@ def to_float_list(value: str, sep: str="|", default_value: float = 0.0):
         try:
             res.append(float(x))
         except Exception:
-            logger.warn(f"{value} is not float list format.")
+            print(f"{value} is not float list format.")
             res.append(default_value)
     return res

@@ -5,20 +5,16 @@ import glob
 from typing import Tuple, Optional
 
 import torch
-from torch.distributed.checkpoint import (
-    load,
-    save,
-)
 
 
 def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None):
-    save(model.state_dict(), checkpoint_id=os.path.join(checkpoint_dir, "model"))
+    model_ckpt_path = os.path.join(checkpoint_dir, "model")
+    optim_ckpt_path = os.path.join(checkpoint_dir, "optimizer")
+    torch.save(model.state_dict(), model_ckpt_path)
+    print(f"Successfully saved model checkpoint to {checkpoint_dir}.")
     if optimizer:
-        save(
-            optimizer.state_dict(),
-            checkpoint_id=os.path.join(checkpoint_dir, "optimizer"),
-        )
-    print(f"Successfully saved checkpoint to {checkpoint_dir}.")
+        torch.save(optimizer.state_dict(), optim_ckpt_path)
+        print(f"Successfully saved optimizer checkpoint to {checkpoint_dir}.")
 
 
 def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None):
@@ -27,20 +23,12 @@ def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.
     model_ckpt_path = os.path.join(checkpoint_dir, "model")
     optim_ckpt_path = os.path.join(checkpoint_dir, "optimizer")
     if os.path.exists(model_ckpt_path):
-        state_dict = model.state_dict()
-        load(
-            state_dict,
-            checkpoint_id=model_ckpt_path,
-        )
-        model.load_state_dict(state_dict)
+        ckpt = torch.load(model_ckpt_path, weights_only=True)
+        model.load_state_dict(ckpt)
         print(f"Successfully restored model state from {checkpoint_dir}.")
     if optimizer and os.path.exists(optim_ckpt_path):
-        state_dict = optimizer.state_dict()
-        load(
-            state_dict,
-            checkpoint_id=optim_ckpt_path,
-        )
-        optimizer.load_state_dict(state_dict)
+        ckpt = torch.load(optim_ckpt_path, weights_only=True)
+        optimizer.load_state_dict(ckpt)
         print(f"Successfully restored optimizer state from {checkpoint_dir}.")
 
 

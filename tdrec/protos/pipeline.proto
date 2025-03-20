@@ -23,8 +23,8 @@ message TrainConfig {
     required OptimizerConfig optimizer_config = 1;
     // number of epochs to train models
     optional uint32 num_epochs = 2 [default = 1];
-    // step interval for saving checkpoint
-    optional uint32 save_checkpoints_steps = 3 [default = 10000];
     // the frequency the loss and lr will be logged during training
-    optional uint32 log_step_count_steps = 4 [default = 1000];
+    optional uint32 log_step_count_steps = 3 [default = 1000];
+    // Max checkpoints to keep
+    optional uint32 keep_checkpoint_max = 4 [default = 10];
 }
