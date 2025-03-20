@@ -15,9 +15,17 @@ def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.opt
     model_ckpt_path = os.path.join(checkpoint_dir, "model")
     optim_ckpt_path = os.path.join(checkpoint_dir, "optimizer")
     torch.save(model.state_dict(), model_ckpt_path)
+    # 打印模型的状态字典
+    print("Model's state_dict:")
+    for param_tensor in model.state_dict():
+        print(param_tensor, "\t", model.state_dict()[param_tensor].size())
     print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully saved model checkpoint to {checkpoint_dir}.")
     if optimizer:
         torch.save(optimizer.state_dict(), optim_ckpt_path)
+        # 打印优化器的状态字典
+        print("Optimizer's state_dict:")
+        for var_name in optimizer.state_dict():
+            print(var_name, "\t", optimizer.state_dict()[var_name])
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully saved optimizer checkpoint to {checkpoint_dir}.")
 
 
