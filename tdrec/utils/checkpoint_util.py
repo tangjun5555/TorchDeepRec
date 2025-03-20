@@ -3,18 +3,22 @@
 import os
 import glob
 from typing import Tuple, Optional
+import datetime
 
 import torch
 
 
 def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None):
+    if not os.path.exists(checkpoint_dir):
+        os.makedirs(checkpoint_dir)
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] create dir {checkpoint_dir}")
     model_ckpt_path = os.path.join(checkpoint_dir, "model")
     optim_ckpt_path = os.path.join(checkpoint_dir, "optimizer")
     torch.save(model.state_dict(), model_ckpt_path)
-    print(f"Successfully saved model checkpoint to {checkpoint_dir}.")
+    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully saved model checkpoint to {checkpoint_dir}.")
     if optimizer:
         torch.save(optimizer.state_dict(), optim_ckpt_path)
-        print(f"Successfully saved optimizer checkpoint to {checkpoint_dir}.")
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully saved optimizer checkpoint to {checkpoint_dir}.")
 
 
 def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None):
@@ -25,11 +29,11 @@ def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.
     if os.path.exists(model_ckpt_path):
         ckpt = torch.load(model_ckpt_path, weights_only=True)
         model.load_state_dict(ckpt)
-        print(f"Successfully restored model state from {checkpoint_dir}.")
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored model state from {checkpoint_dir}.")
     if optimizer and os.path.exists(optim_ckpt_path):
         ckpt = torch.load(optim_ckpt_path, weights_only=True)
         optimizer.load_state_dict(ckpt)
-        print(f"Successfully restored optimizer state from {checkpoint_dir}.")
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored optimizer state from {checkpoint_dir}.")
 
 
 def get_checkpoint_step(ckpt_path: str) -> int:

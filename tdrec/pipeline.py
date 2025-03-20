@@ -31,8 +31,8 @@ def _log_train(
     for i, g in enumerate(param_groups):
         lr_strs.append(f"lr_g{i}:{g['lr']:.5f}")
     total_loss = sum(losses.values())
-    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Training Model-",
-        step,
+    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Training Model",
+        f"step:{step}",
         f"{' '.join(lr_strs)} {' '.join(loss_strs)} total_loss: {total_loss:.5f}",
     )
     if summary_writer is not None:
