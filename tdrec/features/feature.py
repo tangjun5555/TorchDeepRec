@@ -13,13 +13,17 @@ _FEATURE_CLASS_MAP = {}
 _feature_meta_cls = get_register_class_meta(_FEATURE_CLASS_MAP)
 
 
-class BaseFeature(object, metaclass=_feature_meta_cls):
+class BaseFeature(torch.nn.Module, metaclass=_feature_meta_cls):
     def __init__(self,
                  feature_config: FeatureUnit,
                  ):
+        super().__init__()
         fc_type = feature_config.WhichOneof("feature")
         self._feature_config = feature_config
         self.config = getattr(self._feature_config, fc_type)
+
+    def forward(self, parsed_value: torch.Tensor) -> torch.Tensor:
+        return self.to_dense(parsed_value)
 
     @property
     def name(self) -> str:

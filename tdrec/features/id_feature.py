@@ -2,6 +2,7 @@
 
 from typing import Dict
 import pyarrow as pa
+import numpy as np
 
 import torch
 from tdrec.constant import ParsedData
@@ -14,6 +15,11 @@ class IdFeature(BaseFeature):
                  feature_config: FeatureUnit,
                  ):
         super().__init__(feature_config)
+        self.embedding = torch.nn.Embedding(
+            num_embeddings=self.config.num_buckets,
+            embedding_dim=self.config.embedding_dim,
+            padding_idx=0,
+        )
 
     def parse(self, input_data: Dict[str, pa.Array]) -> ParsedData:
         input_name = self.config.input_name
@@ -24,12 +30,7 @@ class IdFeature(BaseFeature):
             raise ValueError(
                 f"feature[{self.name}] only support int dtype input now."
             )
-        return ParsedData(name=self.name, values=torch.IntTensor(values.to_numpy()))
+        return ParsedData(name=self.name, values=torch.IntTensor(np.array(values.to_numpy())))
 
     def to_dense(self, parsed_value: torch.Tensor) -> torch.Tensor:
-        embedding = torch.nn.Embedding(
-            num_embeddings=self.config.num_buckets,
-            embedding_dim=self.config.embedding_dim,
-            padding_idx=0,
-        )
-        return embedding(parsed_value)
+        return self.embedding(parsed_value)
