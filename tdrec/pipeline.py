@@ -4,6 +4,7 @@ import os
 from typing import Dict, List, Any
 import itertools
 import json
+import datetime
 
 import torch
 from torch.utils.data import DataLoader
@@ -30,7 +31,7 @@ def _log_train(
     for i, g in enumerate(param_groups):
         lr_strs.append(f"lr_g{i}:{g['lr']:.5f}")
     total_loss = sum(losses.values())
-    print(
+    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Training Model-",
         step,
         f"{' '.join(lr_strs)} {' '.join(loss_strs)} total_loss: {total_loss:.5f}",
     )
@@ -58,7 +59,6 @@ def train_model(model: torch.nn.Module,
 
     i_step = global_step
     losses = {}
-    total_loss = None
     for i_epoch in epoch_iter:
         step_iter = itertools.count(i_step)
         train_iterator = iter(train_dataloader)
@@ -77,11 +77,11 @@ def train_model(model: torch.nn.Module,
                 lr_scheduler.step()
 
             if i_step % train_config.log_step_count_steps == 0:
-                print(i_step, total_loss.tolist())
+                _log_train(i_step, losses, param_groups=optimizer.param_groups, summary_writer=summary_writer)
         if lr_scheduler.by_epoch:
             lr_scheduler.step()
-        print(f"Finished Train Model Epoch {i_epoch + 1}.")
-    print(i_step, total_loss.tolist())
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Train Model Epoch {i_epoch + 1}.")
+    _log_train(i_step, losses, param_groups=optimizer.param_groups, summary_writer=summary_writer)
     checkpoint_util.save_model(
         os.path.join(model_dir, f"model.ckpt-{i_step}"),
         model,
@@ -121,7 +121,7 @@ def evaluate_model(model: torch.nn.Module,
     metric_result = _model.compute_metric()
 
     metric_str = " ".join([f"{k}:{v:0.6f}" for k, v in metric_result.items()])
-    print(f"Eval Result{desc_suffix}: {metric_str}")
+    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Eval Result{desc_suffix}: {metric_str}")
     metric_result = {k: v.item() for k, v in metric_result.items()}
     if eval_result_filename:
         with open(eval_result_filename, "w") as f:
