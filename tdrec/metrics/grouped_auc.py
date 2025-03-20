@@ -8,6 +8,9 @@ from torchmetrics.utilities.data import dim_zero_cat
 
 
 class GroupedAUC(Metric):
+    """
+    Grouped AUC.
+    """
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.add_state("preds", default=[], dist_reduce_fx="cat")
