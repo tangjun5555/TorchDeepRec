@@ -10,7 +10,7 @@ from tdrec.features.feature import BaseFeature
 from tdrec.models.base_model import BaseModel
 from tdrec.modules.mlp import MLP
 from tdrec.utils.config_util import config_to_kwargs
-from tdrec.metrics.grouped_auc import GroupedAUC
+from tdrec.metrics import GroupedAUC, COPC
 
 
 class RankModel(BaseModel):
@@ -78,23 +78,29 @@ class RankModel(BaseModel):
                     f"num_class must less than 2 when metric type is {metric_type}"
                 )
                 self._metric_modules[metric_name] = GroupedAUC()
+            elif metric_type == "copc":
+                assert self._num_class <= 2, (
+                    f"num_class must less than 2 when metric type is {metric_type}"
+                )
+                self._metric_modules[metric_name] = COPC()
             else:
                 raise ValueError(f"{metric_type} is not supported for this model")
 
     def update_metric(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         metrics = {}
+        pred = predictions["probs"]
         label = batch.labels[self._label_name]
         for metric_cfg in self._base_model_config.metrics:
             metric_type = metric_cfg.WhichOneof("metric")
             oneof_metric_cfg = getattr(metric_cfg, metric_type)
             metric_name = metric_type
             if metric_type == "auc":
-                pred = predictions["probs"]
                 self._metric_modules[metric_name].update(pred, label)
             elif metric_type == "grouped_auc":
-                pred = predictions["probs"]
                 grouping_key = batch.features[oneof_metric_cfg.grouping_key]
                 self._metric_modules[metric_name].update(pred, label, grouping_key)
+            elif metric_type == "copc":
+                self._metric_modules[metric_name].update(pred, label)
             else:
                 raise ValueError(f"{metric_type} is not supported for this model")
         return metrics

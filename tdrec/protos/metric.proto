@@ -5,6 +5,7 @@ message MetricConfig {
     oneof metric {
         AUC auc = 1;
         GroupedAUC grouped_auc = 2;
+        COPC copc = 3;
     }
 }
 
@@ -13,4 +14,7 @@ message AUC {
 
 message GroupedAUC {
     required string grouping_key = 1;
+}
+
+message COPC {
 }
