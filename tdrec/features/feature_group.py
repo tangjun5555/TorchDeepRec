@@ -18,8 +18,17 @@ class FeatureGroup(object):
 
     def output_dim(self) -> int:
         res = 0
-        for name in self._config.feature_names:
-            res += self._features_dict[name].output_dim()
+        if self._config.group_type == FeatureGroupType.Deep:
+            for name in self._config.feature_names:
+                res += self._features_dict[name].output_dim()
+        elif self._config.group_type == FeatureGroupType.Sequence_Attention:
+            for name in self._config.feature_names:
+                res += self._features_dict[name].output_dim()
+                break
+        else:
+            raise ValueError(
+                f"feature_group[{self._config.group_name}] don't support [{self._config.group_type}] now."
+            )
         return res
 
     def build_group_input(self, batch: Batch):

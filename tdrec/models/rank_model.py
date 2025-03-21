@@ -33,7 +33,7 @@ class RankModel(BaseModel):
 
     def predict(self, batch: Batch) -> Dict[str, torch.Tensor]:
         predictions = dict()
-        backbone_output = self._backbone(batch)
+        backbone_output, _ = self._backbone(batch)
         output = self.top_mlp(backbone_output)
         output = self.linear(output)
         output = torch.squeeze(output, dim=1)
