@@ -36,6 +36,10 @@ class BaseFeature(torch.nn.Module, metaclass=_feature_meta_cls):
             return self.config.input_name
 
     @abstractmethod
+    def output_dim(self) -> int:
+        raise NotImplementedError
+
+    @abstractmethod
     def parse(self, input_data: Dict[str, pa.Array]) -> ParsedData:
         """
         Parse input data for the feature impl.

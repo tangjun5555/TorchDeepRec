@@ -21,6 +21,9 @@ class IdFeature(BaseFeature):
             padding_idx=0,
         )
 
+    def output_dim(self) -> int:
+        return self.config.embedding_dim
+
     def parse(self, input_data: Dict[str, pa.Array]) -> ParsedData:
         input_name = self.config.input_name
         values = input_data[input_name]

@@ -16,6 +16,12 @@ class FeatureGroup(object):
         self._config = feature_group_config
         self._features_dict = {base_feature.name:base_feature for base_feature in features}
 
+    def output_dim(self) -> int:
+        res = 0
+        for name in self._config.feature_names:
+            res += self._features_dict[name].output_dim()
+        return res
+
     def build_group_input(self, batch: Batch):
         if self._config.group_type == FeatureGroupType.Deep:
             return self.build_dense_group_input(batch)

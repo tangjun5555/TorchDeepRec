@@ -19,6 +19,12 @@ class RawFeature(BaseFeature):
         if self.config.embedding_dim:
             self.embedding = torch.nn.Linear(self.config.value_dim, self.config.embedding_dim)
 
+    def output_dim(self) -> int:
+        if self.config.embedding_dim:
+            return self.config.embedding_dim
+        else:
+            return self.config.value_dim
+
     def parse(self, input_data: Dict[str, pa.Array]) -> ParsedData:
         input_name = self.config.input_name
         values = input_data[input_name]
