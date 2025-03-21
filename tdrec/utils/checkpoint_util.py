@@ -40,6 +40,7 @@ def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.
     if os.path.exists(model_ckpt_path):
         ckpt = torch.load(model_ckpt_path, weights_only=True)
         model.load_state_dict(ckpt)
+        model.eval()
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored model state from {checkpoint_dir}.")
     if optimizer and os.path.exists(optim_ckpt_path):
         ckpt = torch.load(optim_ckpt_path, weights_only=True)
@@ -99,5 +100,5 @@ def keep_checkpoint_max(model_dir: str, max_version: int = 10):
     ckpt_metas.sort(key=lambda x: get_checkpoint_step(x))
     while len(ckpt_metas) > max_version:
         old_ckpt = ckpt_metas.pop(0)
-        shutil.rmtree(old_ckpt)
+        # shutil.rmtree(old_ckpt)
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] delete ckpt {old_ckpt}.")

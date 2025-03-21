@@ -3,6 +3,8 @@
 import argparse
 import os
 
+import torch.onnx
+
 from tdrec.constant import Mode
 from tdrec.version import __version__ as tdrec_version
 from tdrec.utils import config_util
@@ -133,6 +135,9 @@ def export(pipeline_config_path: str):
     checkpoint_util.restore_model(
         checkpoint_dir=checkpoint_util.latest_checkpoint(model_dir)[0],
         model=model,
+    )
+    torch.onnx.export(
+        model,
     )
 
 

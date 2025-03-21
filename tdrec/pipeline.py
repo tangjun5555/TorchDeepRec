@@ -25,15 +25,13 @@ def _log_train(
     Logging current training step.
     """
     loss_strs = []
-    lr_strs = []
     for k, v in losses.items():
         loss_strs.append(f"{k}:{v:.5f}")
-    for i, g in enumerate(param_groups):
-        lr_strs.append(f"lr_g{i}:{g['lr']:.5f}")
+    lr_str = f"lr:{param_groups[0]['lr']:.5f}"
     total_loss = sum(losses.values())
     print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Training Model",
         f"step:{step}",
-        f"{' '.join(lr_strs)} {' '.join(loss_strs)} total_loss: {total_loss:.5f}",
+        f"{lr_str} {' '.join(loss_strs)} total_loss: {total_loss:.5f}",
     )
     if summary_writer is not None:
         total_loss = sum(losses.values())
@@ -55,7 +53,8 @@ def train_model(model: torch.nn.Module,
     model.train()
     epoch_iter = range(train_config.num_epochs)
 
-    summary_writer = SummaryWriter(model_dir)
+    # summary_writer = SummaryWriter(model_dir)
+    summary_writer = None
 
     i_step = global_step
     losses = {}
@@ -104,7 +103,8 @@ def evaluate_model(model: torch.nn.Module,
     eval_iterator = iter(eval_dataloader)
     step_iter = itertools.count(0)
 
-    summary_writer = SummaryWriter(os.path.join(model_dir, "eval"))
+    # summary_writer = SummaryWriter(os.path.join(model_dir, "eval"))
+    summary_writer = None
 
     desc_suffix = ""
     if global_step:

@@ -89,3 +89,6 @@ def get_dataloader(dataset_config: DatasetConfig,
         batch_size=None,
     )
     return dataloader
+
+def build_dummy_input(dataset_config: DatasetConfig):
+    pass
