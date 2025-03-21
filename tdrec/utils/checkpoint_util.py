@@ -4,6 +4,7 @@ import os
 import glob
 from typing import Tuple, Optional
 import datetime
+import shutil
 
 import torch
 
@@ -24,8 +25,10 @@ def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.opt
         torch.save(optimizer.state_dict(), optim_ckpt_path)
         # 打印优化器的状态字典
         print("Optimizer's state_dict:")
-        for var_name in optimizer.state_dict():
-            print(var_name, "\t", optimizer.state_dict()[var_name])
+        # for var_name in optimizer.state_dict():
+        #     print(var_name, "\t", optimizer.state_dict()[var_name])
+        var_name = "param_groups"
+        print(var_name, "\t", optimizer.state_dict()[var_name])
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully saved optimizer checkpoint to {checkpoint_dir}.")
 
 
@@ -81,3 +84,20 @@ def latest_checkpoint(model_dir: str) -> Tuple[Optional[str], int]:
     ckpt_metas.sort(key=lambda x: get_checkpoint_step(x))
     latest_ckpt_path = ckpt_metas[-1]
     return latest_ckpt_path, get_checkpoint_step(latest_ckpt_path)
+
+
+def keep_checkpoint_max(model_dir: str, max_version: int = 10):
+    if not os.path.exists(model_dir):
+        return
+    if max_version <= 0:
+        return
+    ckpt_metas = glob.glob(os.path.join(model_dir, "model.ckpt-*"))
+    if not ckpt_metas:
+        return
+    if len(ckpt_metas) <= max_version:
+        return
+    ckpt_metas.sort(key=lambda x: get_checkpoint_step(x))
+    while len(ckpt_metas) > max_version:
+        old_ckpt = ckpt_metas.pop(0)
+        shutil.rmtree(old_ckpt)
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] delete ckpt {old_ckpt}.")

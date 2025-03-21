@@ -30,7 +30,7 @@ def register_class(class_map, class_name, cls):
         f"confilict class {cls} , "
         f"{class_name} is already register to be {class_map[class_name]}"
     )
-    print('register class %s' % class_name)
+    # print('register class %s' % class_name)
     class_map[class_name] = cls
 
 

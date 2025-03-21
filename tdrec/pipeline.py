@@ -87,6 +87,7 @@ def train_model(model: torch.nn.Module,
         model,
         optimizer,
     )
+    checkpoint_util.keep_checkpoint_max(model_dir, train_config.keep_checkpoint_max)
     if summary_writer is not None:
         summary_writer.close()
     return i_step
