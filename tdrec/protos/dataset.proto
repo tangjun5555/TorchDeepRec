@@ -4,21 +4,21 @@ package tdrec.protos;
 message DatasetConfig {
     required DatasetType dataset_type = 1 [default = CsvDataset];
 
-    // the input fields must be the same number and in the
-    // same order as data in csv files
-    repeated Field input_fields = 2;
-
-    // labels
-    repeated string label_fields = 3;
-
     // delimiter of column features, only used for CsvDataset
-    optional string delimiter = 4 [default = ","];
-
-    // sample weights
-    optional string sample_weight_field = 5;
+    optional string delimiter = 2 [default = ","];
 
     // mini batch size to use for training and evaluation.
-    optional uint32 batch_size = 6 [default = 1024];
+    optional uint32 batch_size = 3 [default = 1024];
+
+    // the input fields must be the same number and in the
+    // same order as data in csv files
+    repeated Field input_fields = 4;
+
+    // labels
+    repeated string label_fields = 5;
+
+    // sample weights
+    optional string sample_weight_field = 6;
 }
 
 enum DatasetType {
@@ -29,6 +29,8 @@ enum DatasetType {
 message Field {
     required string input_name = 1;
     required FieldType input_type = 2;
+    optional uint32 split_length = 3;
+    optional string sub_type = 4;
 }
 
 enum FieldType {

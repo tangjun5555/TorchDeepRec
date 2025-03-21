@@ -4,6 +4,7 @@ import pyarrow as pa
 from abc import abstractmethod
 from typing import Dict, Any, Iterator, List
 
+import torch
 from torch.utils.data import IterableDataset, DataLoader
 from tdrec.protos.dataset_pb2 import DatasetConfig, FieldType, DatasetType
 from tdrec.constant import Mode, Batch
@@ -90,5 +91,30 @@ def get_dataloader(dataset_config: DatasetConfig,
     )
     return dataloader
 
-def build_dummy_input(dataset_config: DatasetConfig):
-    pass
+def get_dummy_inputs(dataset_config: DatasetConfig):
+    exclude_fields = list(dataset_config.label_fields)
+    if dataset_config.sample_weight_field:
+        exclude_fields.append(dataset_config.sample_weight_field)
+    dummy_inputs = []
+    input_names = []
+    batch_size = 1
+    for input_field in dataset_config.input_fields:
+        if input_field.input_name in exclude_fields:
+            continue
+        input_names.append(input_field.input_name)
+        if input_field.input_type == FieldType.DOUBLE:
+            dummy_inputs.append(torch.randn((batch_size,), requires_grad=True))
+        elif input_field.input_type == FieldType.INT:
+            dummy_inputs.append(torch.randint(low=1, high=100, size=(batch_size,), requires_grad=True))
+        elif input_field.input_type == FieldType.String:
+            assert input_field.split_length > 0
+            assert input_field.sub_type in ["DOUBLE", "INT"]
+            if input_field.sub_type == "DOUBLE":
+                dummy_inputs.append(torch.randn((batch_size, input_field.split_length), requires_grad=True))
+            elif input_field.sub_type == "INT":
+                dummy_inputs.append(torch.randint(low=1, high=100, size=(batch_size, input_field.split_length), requires_grad=True))
+            else:
+                raise ValueError(f"sub_type:{input_field.sub_type} is not supported.")
+        else:
+            raise ValueError(f"input_type:{input_field.input_type} is not supported.")
+    return dummy_inputs, input_names

@@ -2,14 +2,16 @@
 
 import argparse
 import os
+import time
+import datetime
 
-import torch.onnx
+import torch
 
 from tdrec.constant import Mode
 from tdrec.version import __version__ as tdrec_version
 from tdrec.utils import config_util
 from tdrec.features.feature import create_features
-from tdrec.datasets.dataset import get_dataloader
+from tdrec.datasets.dataset import get_dataloader, get_dummy_inputs
 from tdrec.models.base_model import create_model, TrainWrapper
 from tdrec.pipeline import train_model, evaluate_model
 from tdrec.utils import checkpoint_util
@@ -120,7 +122,11 @@ def evaluate(pipeline_config_path: str,
 def export(pipeline_config_path: str):
     pipeline_config = config_util.load_pipeline_config(pipeline_config_path)
     model_dir = pipeline_config.model_dir
+
     export_dir = os.path.join(model_dir, "export")
+    if not os.path.exists(export_dir):
+        os.makedirs(export_dir)
+        print(f"create dir {export_dir}")
 
     dataset_config = pipeline_config.dataset_config
     features = create_features(list(pipeline_config.feature_configs))
@@ -136,9 +142,22 @@ def export(pipeline_config_path: str):
         checkpoint_dir=checkpoint_util.latest_checkpoint(model_dir)[0],
         model=model,
     )
+
+    dummy_inputs, input_names = get_dummy_inputs(dataset_config)
+    dynamic_axes = dict()
+    for input_name in input_names:
+        dynamic_axes[input_name] = {0 : "batch_size"}
+    dynamic_axes["outputs"] = {0 : "batch_size"}
+    export_file = os.path.join(export_dir, f"model-{int(time.time())}.onnx")
     torch.onnx.export(
         model,
+        dummy_inputs,
+        export_file,
+        input_names=input_names,
+        output_names=["outputs"],
+        dynamic_axes=dynamic_axes,
     )
+    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully export model to {export_file}.")
 
 
 if __name__ == "__main__":
@@ -183,6 +202,6 @@ if __name__ == "__main__":
             eval_input_path=args.eval_input_path,
         )
     elif args.task_type == "export":
-        raise NotImplementedError
+        export(pipeline_config_path=args.pipeline_config_path)
     else:
         raise NotImplementedError
