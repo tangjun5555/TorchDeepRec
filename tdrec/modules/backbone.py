@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from typing import Dict, Any, Tuple
+import datetime
 
 import torch
 from tdrec.utils.config_util import config_to_kwargs
@@ -17,11 +18,12 @@ class Backbone(torch.nn.Module):
                feature_group_dict: Dict[str, FeatureGroup],
                ):
         super().__init__()
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Initialize Backbone.")
         self._config = config
         self._feature_group_dict = feature_group_dict
         self._block_outputs = {}
 
-        self._block_modules = {}
+        self._block_modules = torch.nn.ModuleDict()
         for block_config in self._config.blocks:
             module_type = block_config.WhichOneof("module")
             module_config = getattr(block_config, module_type)
@@ -34,6 +36,7 @@ class Backbone(torch.nn.Module):
                 raise ValueError(
                     f"block[{block_config.name}] don't support [{module_type}] now."
                 )
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] block_modules:{self._block_modules}")
 
     def forward(self, batch: Batch) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
         feature_group_values = dict()

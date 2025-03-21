@@ -26,7 +26,7 @@ class BaseModel(torch.nn.Module, metaclass=_meta_cls):
                  ):
         super().__init__(**kwargs)
         self._base_model_config = model_config
-        self._features = features
+        self._features = torch.nn.ModuleList(features)
         self._labels = labels
         self._sample_weight = sample_weight
 
@@ -38,7 +38,7 @@ class BaseModel(torch.nn.Module, metaclass=_meta_cls):
 
         feature_group_dict = dict()
         for feature_group in model_config.feature_groups:
-           feature_group_dict[feature_group.group_name] = FeatureGroup(feature_group, features)
+            feature_group_dict[feature_group.group_name] = FeatureGroup(feature_group, features)
         self._feature_group_dict = feature_group_dict
 
         self._backbone = Backbone(model_config.backbone, feature_group_dict)
