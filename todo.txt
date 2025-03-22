@@ -1,0 +1,2 @@
+1、Support GPU training
+2、Support TorchRec package
