@@ -56,7 +56,7 @@ class CsvReader(BaseReader):
             convert_options=csv.ConvertOptions(column_types=column_types),
             read_options=csv.ReadOptions(
                 column_names=column_names,
-                # block_size=64 * 1024 * 1024,
+                block_size=64 * 1024 * 1024,
             ),
         )
 
