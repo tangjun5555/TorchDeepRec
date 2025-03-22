@@ -7,7 +7,6 @@ import pyarrow as pa
 
 import torch
 from tdrec.features.feature import BaseFeature
-from tdrec.constant import Batch
 
 
 def _to_tensor(x: npt.NDArray) -> torch.Tensor:
@@ -53,22 +52,5 @@ class DataParser(object):
             )
         return output_data
 
-    def to_batch(self, input_data: Dict[str, torch.Tensor]) -> Batch:
-        features = dict()
-        for feature in self._features:
-            features[feature.name] = input_data[feature.name]
-
-        labels = dict()
-        for label_name in self._labels:
-            labels[label_name] = input_data[label_name]
-
-        sample_weight: torch.Tensor = None
-        if self._sample_weight:
-            sample_weight = input_data[self._sample_weight]
-
-        batch = Batch(
-            features=features,
-            labels=labels,
-            sample_weight=sample_weight,
-        )
-        return batch
+    def to_batch(self, input_data: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        return input_data
