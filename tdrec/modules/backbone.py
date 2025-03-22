@@ -4,8 +4,8 @@ from typing import Dict, Any, Tuple
 import datetime
 
 import torch
+
 from tdrec.utils.config_util import config_to_kwargs
-from tdrec.datasets.dataset import Batch
 from tdrec.features.feature_group import FeatureGroup
 from tdrec.protos.backbone_pb2 import BackboneConfig, BlockConfig
 from tdrec.modules.mlp import MLP
@@ -38,7 +38,7 @@ class Backbone(torch.nn.Module):
                 )
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] block_modules:{self._block_modules}")
 
-    def forward(self, batch: Batch) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
+    def forward(self, batch: Dict[str, torch.Tensor]) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
         feature_group_values = dict()
         for k, v in self._feature_group_dict.items():
             feature_group_values[k] = v.build_group_input(batch)
