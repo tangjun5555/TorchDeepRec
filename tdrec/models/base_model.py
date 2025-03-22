@@ -4,8 +4,6 @@ import torch
 from abc import abstractmethod
 from typing import List, Any, Dict, Optional
 
-from tdrec.datasets.dataset import Batch
-from tdrec.datasets.data_parser import DataParser
 from tdrec.protos.model_pb2 import ModelConfig
 from tdrec.features.feature import BaseFeature
 from tdrec.features.feature_group import FeatureGroup
@@ -43,11 +41,14 @@ class BaseModel(torch.nn.Module, metaclass=_meta_cls):
 
         self._backbone = Backbone(model_config.backbone, feature_group_dict)
 
-    def forward(self, batch: Batch) -> Dict[str, torch.Tensor]:
+        self._input_feature_names = sorted(list(set([feature.config.input_name for feature in features])))
+        print(f"input_feature_names:{self._input_feature_names}")
+
+    def forward(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         return self.predict(batch)
 
     @abstractmethod
-    def predict(self, batch: Batch) -> Dict[str, torch.Tensor]:
+    def predict(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Predict the model.
         :param batch:
@@ -65,7 +66,7 @@ class BaseModel(torch.nn.Module, metaclass=_meta_cls):
         raise NotImplementedError
 
     @abstractmethod
-    def compute_loss(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def compute_loss(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Calculate the loss.
         :param batch:
@@ -85,7 +86,7 @@ class BaseModel(torch.nn.Module, metaclass=_meta_cls):
         raise NotImplementedError
 
     @abstractmethod
-    def update_metric(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def update_metric(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         """
         Calculate the metric.
         :return:
@@ -126,7 +127,7 @@ class TrainWrapper(torch.nn.Module):
         self.model.init_loss()
         self.model.init_metric()
 
-    def forward(self, batch: Batch):
+    def forward(self, batch: Dict[str, torch.Tensor]):
         predictions = self.model.predict(batch)
         losses = self.model.compute_loss(batch, predictions)
         total_loss = torch.stack(list(losses.values())).sum()
@@ -134,40 +135,3 @@ class TrainWrapper(torch.nn.Module):
         losses = {k: v.detach() for k, v in losses.items()}
         predictions = {k: v.detach() for k, v in predictions.items()}
         return total_loss, (losses, predictions, batch)
-
-
-class ScriptWrapper(torch.nn.Module):
-    """Model inference wrapper for jit.script."""
-    def __init__(self, model: BaseModel) -> None:
-        super().__init__()
-        self.model = model
-        self._features = self.model._features
-        self._data_parser = DataParser(self._features)
-
-    def get_batch(self, data: Dict[str, torch.Tensor], device: torch.device = "cpu") -> Batch:
-        """
-        Get batch.
-        """
-        batch = self._data_parser.to_batch(data)
-        batch = batch.to(device, non_blocking=True)
-        return batch
-
-    def forward(self, data: Dict[str, torch.Tensor], device: torch.device = "cpu"):
-        batch = self.get_batch(data, device)
-        return self.model.predict(batch)
-
-
-class CudaExportWrapper(ScriptWrapper):
-    """Model inference wrapper for cuda export(aot/trt)."""
-    def forward(self, data: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
-        """Predict the model.
-
-        Args:
-            data (dict): a dict of input data for Batch.
-
-        Return:
-            predictions (dict): a dict of predicted result.
-        """
-        batch = self._data_parser.to_batch(data)
-        batch = batch.to(torch.device("cuda"), non_blocking=True)
-        return self.model.predict(batch)

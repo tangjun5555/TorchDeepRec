@@ -5,7 +5,6 @@ import datetime
 
 import torch
 import torchmetrics
-from tdrec.datasets.dataset import Batch
 from tdrec.protos.model_pb2 import ModelConfig
 from tdrec.features.feature import BaseFeature
 from tdrec.models.base_model import BaseModel
@@ -31,7 +30,7 @@ class RankModel(BaseModel):
         self.top_mlp = MLP(in_features=model_config.backbone.output_dim, **config_to_kwargs(self._model_config.top_mlp))
         self.linear = torch.nn.Linear(self._model_config.top_mlp.hidden_units[-1], 1)
 
-    def predict(self, batch: Batch) -> Dict[str, torch.Tensor]:
+    def predict(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         predictions = dict()
         backbone_output, _ = self._backbone(batch)
         output = self.top_mlp(backbone_output)
@@ -46,16 +45,16 @@ class RankModel(BaseModel):
             reduction="none" if self._sample_weight_name else "mean",
         )
 
-    def compute_loss(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def compute_loss(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         losses = {}
         pred = predictions["logits"]
-        label = batch.labels[self._label_name]
+        label = batch[self._label_name]
 
         label = label.to(torch.float32)
         loss_name = "binary_cross_entropy"
         losses[loss_name] = self._loss_modules[loss_name](pred, label)
         if self._sample_weight_name:
-            loss_weight = batch.sample_weight
+            loss_weight = batch[self._sample_weight_name]
             losses[loss_name] = torch.mean(losses[loss_name] * loss_weight)
         return losses
 
@@ -86,10 +85,10 @@ class RankModel(BaseModel):
             else:
                 raise ValueError(f"{metric_type} is not supported for this model")
 
-    def update_metric(self, batch: Batch, predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    def update_metric(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         metrics = {}
         pred = predictions["probs"]
-        label = batch.labels[self._label_name]
+        label = batch[self._label_name]
         for metric_cfg in self._base_model_config.metrics:
             metric_type = metric_cfg.WhichOneof("metric")
             oneof_metric_cfg = getattr(metric_cfg, metric_type)
@@ -97,7 +96,7 @@ class RankModel(BaseModel):
             if metric_type == "auc":
                 self._metric_modules[metric_name].update(pred, label)
             elif metric_type == "grouped_auc":
-                grouping_key = batch.features[oneof_metric_cfg.grouping_key]
+                grouping_key = batch[oneof_metric_cfg.grouping_key]
                 self._metric_modules[metric_name].update(pred, label, grouping_key)
             elif metric_type == "copc":
                 self._metric_modules[metric_name].update(pred, label)
