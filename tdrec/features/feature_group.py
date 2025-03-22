@@ -44,8 +44,9 @@ class FeatureGroup(object):
     def build_dense_group_input(self, batch: Batch) -> torch.Tensor:
         group_features = []
         for name in self._config.feature_names:
-            values = batch.features[name]
-            group_features.append(self._features_dict[name].to_dense(values))
+            values = batch.features[self._features_dict[name].input_name]
+            values = self._features_dict[name].to_dense(values)
+            group_features.append(values)
         group_features = torch.cat(group_features, dim=1)
         return group_features
 
@@ -58,7 +59,7 @@ class FeatureGroup(object):
         query_features = []
         sequence_features = []
         for name in self._config.feature_names:
-            values = batch.features[name]
+            values = batch.features[self._features_dict[name].input_name]
             if len(values.shape) == 1:
                 values = self._features_dict[name].to_dense(values)
                 query_features.append(values)

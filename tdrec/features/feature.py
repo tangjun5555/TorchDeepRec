@@ -35,6 +35,10 @@ class BaseFeature(torch.nn.Module, metaclass=_feature_meta_cls):
         else:
             return self.config.input_name
 
+    @property
+    def input_name(self) -> str:
+        return self.config.input_name
+
     @abstractmethod
     def output_dim(self) -> int:
         raise NotImplementedError
