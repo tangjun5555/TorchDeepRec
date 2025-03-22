@@ -127,7 +127,8 @@ class TrainWrapper(torch.nn.Module):
         self.model.init_loss()
         self.model.init_metric()
 
-    def forward(self, batch: Dict[str, torch.Tensor]):
+    def forward(self, inputs: Dict[str, torch.Tensor]):
+        batch = inputs
         predictions = self.model.predict(batch)
         losses = self.model.compute_loss(batch, predictions)
         total_loss = torch.stack(list(losses.values())).sum()

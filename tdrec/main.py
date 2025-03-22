@@ -157,9 +157,6 @@ def export(pipeline_config_path: str):
         model,
         dummy_inputs,
         export_file,
-        input_names=input_names,
-        output_names=["outputs"],
-        dynamic_axes=dynamic_axes,
     )
     print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully export model to {export_file}.")
 
