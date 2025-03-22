@@ -92,7 +92,7 @@ def evaluate(pipeline_config_path: str,
     model_dir = pipeline_config.model_dir
 
     dataset_config = pipeline_config.dataset_config
-    features = create_features(list(pipeline_config.feature_configs))
+    features = create_features(list(pipeline_config.feature_config.features))
     eval_dataloader = get_dataloader(
         dataset_config=dataset_config,
         input_path=eval_input_path,
@@ -111,11 +111,15 @@ def evaluate(pipeline_config_path: str,
         checkpoint_dir=checkpoint_util.latest_checkpoint(model_dir)[0],
         model=model,
     )
+    global_step = checkpoint_util.latest_checkpoint(model_dir)[1]
+    print(f"global_step:{global_step}")
+
     evaluate_model(
         model=model,
         eval_dataloader=eval_dataloader,
         model_dir=model_dir,
         eval_result_filename=os.path.join(pipeline_config.model_dir, "eval_result.txt"),
+        global_step=global_step,
     )
 
 
@@ -129,7 +133,7 @@ def export(pipeline_config_path: str):
         print(f"create dir {export_dir}")
 
     dataset_config = pipeline_config.dataset_config
-    features = create_features(list(pipeline_config.feature_configs))
+    features = create_features(list(pipeline_config.feature_config.features))
 
     model = create_model(
         pipeline_config.model_config,

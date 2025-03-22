@@ -100,5 +100,5 @@ def keep_checkpoint_max(model_dir: str, max_version: int = 10):
     ckpt_metas.sort(key=lambda x: get_checkpoint_step(x))
     while len(ckpt_metas) > max_version:
         old_ckpt = ckpt_metas.pop(0)
-        # shutil.rmtree(old_ckpt)
+        shutil.rmtree(old_ckpt)
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] delete ckpt {old_ckpt}.")

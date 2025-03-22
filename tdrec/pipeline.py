@@ -5,6 +5,7 @@ from typing import Dict, List, Any
 import itertools
 import json
 import datetime
+import time
 
 import torch
 from torch.utils.data import DataLoader
@@ -17,6 +18,7 @@ from tdrec.utils import checkpoint_util
 
 def _log_train(
         step: int,
+        cost_time: float,
         losses: Dict[str, torch.Tensor],
         param_groups: List[Dict[str, Any]],
         summary_writer: SummaryWriter = None,
@@ -29,8 +31,10 @@ def _log_train(
         loss_strs.append(f"{k}:{v:.5f}")
     lr_str = f"lr:{param_groups[0]['lr']:.5f}"
     total_loss = sum(losses.values())
-    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Training Model",
+    print(
+        f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Training Model",
         f"step:{step}",
+        f"cost_time:{round(cost_time, 1)}m",
         f"{lr_str} {' '.join(loss_strs)} total_loss: {total_loss:.5f}",
     )
     if summary_writer is not None:
@@ -58,8 +62,9 @@ def train_model(model: torch.nn.Module,
 
     i_step = global_step
     losses = {}
+    start_time = time.time()
     for i_epoch in epoch_iter:
-        step_iter = itertools.count(i_step)
+        step_iter = itertools.count(i_step + 1)
         train_iterator = iter(train_dataloader)
         for i_step in step_iter:
             try:
@@ -76,11 +81,17 @@ def train_model(model: torch.nn.Module,
                 lr_scheduler.step()
 
             if i_step % train_config.log_step_count_steps == 0:
-                _log_train(i_step, losses, param_groups=optimizer.param_groups, summary_writer=summary_writer)
+                current_time = time.time()
+                cost_time = (current_time - start_time) / 60.0
+                start_time = current_time
+                _log_train(i_step, cost_time, losses, param_groups=optimizer.param_groups, summary_writer=summary_writer)
+
         if lr_scheduler.by_epoch:
             lr_scheduler.step()
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Train Model Epoch {i_epoch + 1}.")
-    _log_train(i_step, losses, param_groups=optimizer.param_groups, summary_writer=summary_writer)
+
+    cost_time = (time.time() - start_time) / 60.0
+    _log_train(i_step, cost_time, losses, param_groups=optimizer.param_groups, summary_writer=summary_writer)
     checkpoint_util.save_model(
         os.path.join(model_dir, f"model.ckpt-{i_step}"),
         model,
@@ -124,9 +135,8 @@ def evaluate_model(model: torch.nn.Module,
     metric_str = " ".join([f"{k}:{v:0.6f}" for k, v in metric_result.items()])
     print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Eval Result{desc_suffix}: {metric_str}")
     metric_result = {k: v.item() for k, v in metric_result.items()}
-    if eval_result_filename:
-        with open(eval_result_filename, "w") as f:
-            json.dump(metric_result, f, indent=4)
+    with open(eval_result_filename, "w") as f:
+        json.dump(metric_result, f, indent=4)
     if summary_writer:
         for k, v in metric_result.items():
             summary_writer.add_scalar(f"metric/{k}", v, global_step or 0)
