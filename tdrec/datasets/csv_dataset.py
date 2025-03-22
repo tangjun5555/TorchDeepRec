@@ -18,6 +18,7 @@ class CsvDataset(BaseDataset):
                  **kwargs: Any,
                  ):
         super().__init__(data_config, input_path, **kwargs)
+        print(f"Using CsvDataset.")
 
         column_names = []
         column_types = {}
@@ -65,6 +66,7 @@ class CsvReader(BaseReader):
         if len(self._input_files) == 0:
             raise RuntimeError(f"No csv files exist in {self._input_path}.")
         random.shuffle(self._input_files)
+        print(f"input_files:{self._input_files}")
 
     def to_batches(self) -> Iterator[Dict[str, pa.Array]]:
         input_files = self._input_files

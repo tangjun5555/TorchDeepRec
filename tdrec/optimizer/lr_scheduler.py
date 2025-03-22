@@ -24,6 +24,7 @@ class BaseLR(LRScheduler, metaclass=_meta_cls):
 class ConstantLR(BaseLR):
     def __init__(self, optimizer: Optimizer):
         super().__init__(optimizer, by_epoch=True)
+        print("Using ConstantLR.")
 
     def get_lr(self):
         """Calculates the learning rate."""
@@ -41,6 +42,8 @@ class ExponentialDecayLR(BaseLR):
         self._decay_rate = decay_rate
         self._min_learning_rate = min_learning_rate
         super().__init__(optimizer, by_epoch)
+
+        print("Using ExponentialDecayLR.")
 
     def get_lr(self):
         step_count = max(self._step_count - 1, 0)

@@ -17,6 +17,7 @@ class ParquetDataset(BaseDataset):
                  **kwargs: Any,
                  ):
         super().__init__(data_config, input_path, **kwargs)
+        print(f"Using ParquetDataset.")
 
         column_names = []
         for f in self._dataset_config.input_fields:
@@ -44,6 +45,7 @@ class ParquetReader(BaseReader):
         if len(self._input_files) == 0:
             raise RuntimeError(f"No parquet files exist in {self._input_path}.")
         random.shuffle(self._input_files)
+        print(f"input_files:{self._input_files}")
 
     def to_batches(self) -> Iterator[Dict[str, pa.Array]]:
         input_files = self._input_files
