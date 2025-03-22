@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# download data and save in {data_dir}, then split data.
+# download data https://tianchi.aliyun.com/dataset/144733
+# save in {data_dir}, then split data.
 split -l 1000000 -d train.txt Criteo_Kaggle_split_
 
 python build_model_sample.py --raw_file=${data_dir}/Criteo_Kaggle_split_45 --res_file=${data_dir}/Criteo_Kaggle_split_45_T
@@ -43,3 +44,20 @@ python -m tdrec.main \
   --pipeline_config_path=model_mlp_v1.config \
   --eval_input_path=${data_dir}/Criteo_Kaggle_split_45_T
 # Eval Result model-6331: auc:0.681520 copc:0.904874
+
+python build_model_sample.py --raw_file=${data_dir}/Criteo_Kaggle_split_03 --res_file=${data_dir}/Criteo_Kaggle_split_03_T
+python -m tdrec.main \
+  --task_type=train_and_evaluate \
+  --pipeline_config_path=model_mlp_v1.config \
+  --train_input_path=${data_dir}/Criteo_Kaggle_split_03_T \
+  --eval_input_path=${data_dir}/Criteo_Kaggle_split_03_T
+# Eval Result model-8442: auc:0.758895 copc:0.981576
+python -m tdrec.main \
+  --task_type=evaluate \
+  --pipeline_config_path=model_mlp_v1.config \
+  --eval_input_path=${data_dir}/Criteo_Kaggle_split_45_T
+# Eval Result model-8442: auc:0.692347 copc:0.790076
+
+python -m tdrec.main \
+  --task_type=export \
+  --pipeline_config_path=model_mlp_v1.config
