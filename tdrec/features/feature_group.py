@@ -3,7 +3,6 @@
 from typing import List, Dict
 
 import torch
-from tdrec.constant import Batch
 from tdrec.protos.model_pb2 import FeatureGroupConfig, FeatureGroupType
 from tdrec.features.feature import BaseFeature
 
@@ -31,7 +30,7 @@ class FeatureGroup(object):
             )
         return res
 
-    def build_group_input(self, batch: Batch):
+    def build_group_input(self, batch: Dict[str, torch.Tensor]):
         if self._config.group_type == FeatureGroupType.Deep:
             return self.build_dense_group_input(batch)
         elif self._config.group_type == FeatureGroupType.Sequence_Attention:
@@ -41,16 +40,16 @@ class FeatureGroup(object):
                 f"feature_group[{self._config.group_name}] don't support [{self._config.group_type}] now."
             )
 
-    def build_dense_group_input(self, batch: Batch) -> torch.Tensor:
+    def build_dense_group_input(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
         group_features = []
         for name in self._config.feature_names:
-            values = batch.features[self._features_dict[name].input_name]
+            values = batch[self._features_dict[name].input_name]
             values = self._features_dict[name].to_dense(values)
             group_features.append(values)
         group_features = torch.cat(group_features, dim=1)
         return group_features
 
-    def build_sequence_attention_group_input(self, batch: Batch) -> Dict[str, torch.Tensor]:
+    def build_sequence_attention_group_input(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         group_features = {}
         query_name = f"{self._config.group_name}.query"
         sequence_name = f"{self._config.group_name}.sequence"
@@ -59,7 +58,7 @@ class FeatureGroup(object):
         query_features = []
         sequence_features = []
         for name in self._config.feature_names:
-            values = batch.features[self._features_dict[name].input_name]
+            values = batch[self._features_dict[name].input_name]
             if len(values.shape) == 1:
                 values = self._features_dict[name].to_dense(values)
                 query_features.append(values)

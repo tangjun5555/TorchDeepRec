@@ -32,7 +32,7 @@ class DataParser(object):
 
         for feature in self._features:
             feat_data = feature.parse(input_data)
-            output_data[feature.name] = feat_data.values
+            output_data[feature.input_name] = feat_data.values
 
         for label_name in self._labels:
             label = input_data[label_name]
