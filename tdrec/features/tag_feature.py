@@ -33,6 +33,7 @@ class TagFeature(BaseFeature):
             for row in values:
                 res.append(to_int_list(str(row), self.config.separator))
             res = np.array(res)
+            assert np.all(res > 0), f"feature[{self.name}] must be non negative."
         else:
             raise ValueError(
                 f"feature[{self.name}] only support string input dtype now."

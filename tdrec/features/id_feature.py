@@ -29,11 +29,13 @@ class IdFeature(BaseFeature):
         values = input_data[input_name]
         if pa.types.is_integer(values.type):
             values = values.cast(pa.int64(), safe=False)
+            values = np.array(values.to_numpy())
+            assert np.all(values > 0), f"feature[{self.name}] must be non negative."
         else:
             raise ValueError(
                 f"feature[{self.name}] only support int dtype input now."
             )
-        return ParsedData(name=self.name, values=torch.IntTensor(np.array(values.to_numpy())))
+        return ParsedData(name=self.name, values=torch.IntTensor(values))
 
     def to_dense(self, parsed_value: torch.Tensor) -> torch.Tensor:
         return self.embedding(parsed_value)
