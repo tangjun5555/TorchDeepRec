@@ -30,7 +30,7 @@ class IdFeature(BaseFeature):
         if pa.types.is_integer(values.type):
             values = values.cast(pa.int64(), safe=False)
             values = np.array(values.to_numpy())
-            assert np.all(values > 0), f"feature[{self.name}] must be non negative."
+            assert np.all(values >= 0), f"feature[{self.name}]:{values} must be non negative."
         else:
             raise ValueError(
                 f"feature[{self.name}] only support int dtype input now."
