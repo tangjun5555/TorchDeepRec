@@ -13,7 +13,7 @@ class DLRM(torch.nn.Module):
         """
         :param inputs: torch.Tensor: shape is [B, N, D]
         :return:
-            torch.Tensor: shape is [B, D]
+            torch.Tensor: shape is [B, N * (N-1) / 2]
         """
         # perform a dot product
         Z = torch.bmm(inputs, torch.transpose(inputs, 1, 2))

@@ -72,7 +72,7 @@ class Backbone(torch.nn.Module):
         if module_type == "mlp":
             block_input = torch.cat(block_inputs, dim=1)
             block_output = self._block_modules[block_config.name](block_input)
-        elif module_type == "din":
+        elif module_type in ["fm", "dlrm", "din"]:
             block_input = block_inputs[0]
             block_output = self._block_modules[block_config.name](block_input)
         else:

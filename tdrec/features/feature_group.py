@@ -33,6 +33,8 @@ class FeatureGroup(object):
     def build_group_input(self, batch: Dict[str, torch.Tensor]):
         if self._config.group_type == FeatureGroupType.Deep:
             return self.build_dense_group_input(batch)
+        elif self._config.group_type == FeatureGroupType.Deep_3D:
+            return self.build_dense_3d_group_input(batch)
         elif self._config.group_type == FeatureGroupType.Sequence_Attention:
             return self.build_sequence_attention_group_input(batch)
         else:
@@ -47,6 +49,15 @@ class FeatureGroup(object):
             values = self._features_dict[name].to_dense(values)
             group_features.append(values)
         group_features = torch.cat(group_features, dim=1)
+        return group_features
+
+    def build_dense_3d_group_input(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+        group_features = []
+        for name in self._config.feature_names:
+            values = batch[self._features_dict[name].input_name]
+            values = self._features_dict[name].to_dense(values)
+            group_features.append(values)
+        group_features = torch.stack(group_features, dim=1)
         return group_features
 
     def build_sequence_attention_group_input(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
