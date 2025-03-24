@@ -9,7 +9,6 @@ import time
 
 import torch
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
 
 from tdrec.protos.pipeline_pb2 import TrainConfig
 from tdrec.optimizer.lr_scheduler import BaseLR
@@ -21,7 +20,6 @@ def _log_train(
         cost_time: float,
         losses: Dict[str, torch.Tensor],
         param_groups: List[Dict[str, Any]],
-        summary_writer: SummaryWriter = None,
 ) -> None:
     """
     Logging current training step.
@@ -37,13 +35,6 @@ def _log_train(
         f"cost_time:{round(cost_time, 1)}m",
         f"{lr_str} {' '.join(loss_strs)} total_loss: {total_loss:.5f}",
     )
-    if summary_writer is not None:
-        total_loss = sum(losses.values())
-        for k, v in losses.items():
-            summary_writer.add_scalar(f"loss/{k}", v, step)
-        summary_writer.add_scalar("loss/total", total_loss, step)
-        for i, g in enumerate(param_groups):
-            summary_writer.add_scalar(f"lr/g{i}", g["lr"], step)
 
 
 def train_model(model: torch.nn.Module,
@@ -56,9 +47,6 @@ def train_model(model: torch.nn.Module,
                 ) -> int:
     model.train()
     epoch_iter = range(train_config.num_epochs)
-
-    # summary_writer = SummaryWriter(model_dir)
-    summary_writer = None
 
     i_step = global_step
     losses = {}
@@ -84,22 +72,20 @@ def train_model(model: torch.nn.Module,
                 current_time = time.time()
                 cost_time = (current_time - start_time) / 60.0
                 start_time = current_time
-                _log_train(i_step, cost_time, losses, param_groups=optimizer.param_groups, summary_writer=summary_writer)
+                _log_train(i_step, cost_time, losses, param_groups=optimizer.param_groups)
 
         if lr_scheduler.by_epoch:
             lr_scheduler.step()
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Finished Train Model Epoch {i_epoch + 1}.")
 
     cost_time = (time.time() - start_time) / 60.0
-    _log_train(i_step, cost_time, losses, param_groups=optimizer.param_groups, summary_writer=summary_writer)
+    _log_train(i_step, cost_time, losses, param_groups=optimizer.param_groups)
     checkpoint_util.save_model(
         os.path.join(model_dir, f"model.ckpt-{i_step}"),
         model,
         optimizer,
     )
     checkpoint_util.keep_checkpoint_max(model_dir, train_config.keep_checkpoint_max)
-    if summary_writer is not None:
-        summary_writer.close()
     return i_step
 
 
@@ -113,9 +99,6 @@ def evaluate_model(model: torch.nn.Module,
     _model = model.model
     eval_iterator = iter(eval_dataloader)
     step_iter = itertools.count(0)
-
-    # summary_writer = SummaryWriter(os.path.join(model_dir, "eval"))
-    summary_writer = None
 
     desc_suffix = ""
     if global_step:
@@ -137,7 +120,4 @@ def evaluate_model(model: torch.nn.Module,
     metric_result = {k: v.item() for k, v in metric_result.items()}
     with open(eval_result_filename, "w") as f:
         json.dump(metric_result, f, indent=4)
-    if summary_writer:
-        for k, v in metric_result.items():
-            summary_writer.add_scalar(f"metric/{k}", v, global_step or 0)
     return metric_result
