@@ -10,16 +10,9 @@ message MLP {
     optional bool use_bn = 3 [default = false];
 }
 
-message PPNet {
-    // hidden units for each layer
-    repeated uint32 hidden_units = 1;
-    // activation function
-    optional string activation = 2 [default = "torch.nn.ReLU"];
-    // use batch normalization
-    optional bool use_bn = 3 [default = false];
-}
-
 message FM {
+}
+message DLRM {
 }
 
 message DIN {
@@ -27,6 +20,15 @@ message DIN {
     required string feature_group = 1;
     // mlp config for target attention score
     required MLP attn_mlp = 2;
+}
+
+message PPNet {
+    // hidden units for each layer
+    repeated uint32 hidden_units = 1;
+    // activation function
+    optional string activation = 2 [default = "torch.nn.ReLU"];
+    // use batch normalization
+    optional bool use_bn = 3 [default = false];
 }
 
 message MMoE {

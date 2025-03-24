@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from typing import Dict, Any
+import datetime
 
 import torch
 from tdrec.modules.mlp import MLP
@@ -52,4 +53,6 @@ class DIN(torch.nn.Module):
         padding = torch.ones_like(attn_output) * (-(2 ** 32) + 1)
         scores = torch.where(sequence_mask.unsqueeze(1), attn_output, padding)
         scores = torch.softmax(scores, dim=-1)
-        return torch.matmul(scores, sequence).squeeze(1)
+        outputs = torch.matmul(scores, sequence).squeeze(1)
+        f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DIN outputs.size:{outputs.size()}."
+        return outputs

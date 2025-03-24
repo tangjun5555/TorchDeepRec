@@ -10,6 +10,8 @@ from tdrec.features.feature_group import FeatureGroup
 from tdrec.protos.backbone_pb2 import BackboneConfig, BlockConfig
 from tdrec.modules.mlp import MLP
 from tdrec.modules.din import DIN
+from tdrec.modules.fm import FactorizationMachine
+from tdrec.modules.dlrm import DLRM
 
 
 class Backbone(torch.nn.Module):
@@ -29,9 +31,16 @@ class Backbone(torch.nn.Module):
             module_config = getattr(block_config, module_type)
             if module_type == "mlp":
                 self._block_modules[block_config.name] = MLP(in_features=self._get_block_input_dim(block_config), **config_to_kwargs(module_config))
+
+            elif module_type == "fm":
+                self._block_modules[block_config.name] = FactorizationMachine()
+            elif module_type == "dlrm":
+                self._block_modules[block_config.name] = DLRM()
+
             elif module_type == "din":
                 sequence_dim = self._get_block_input_dim(block_config)
                 self._block_modules[block_config.name] = DIN(sequence_dim=sequence_dim, query_dim=sequence_dim, **config_to_kwargs(module_config))
+
             else:
                 raise ValueError(
                     f"block[{block_config.name}] don't support [{module_type}] now."

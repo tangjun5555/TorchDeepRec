@@ -13,8 +13,12 @@ message BlockConfig {
     repeated string feature_group_names = 2;
     oneof module {
         MLP mlp = 11;
+
         FM fm = 12;
-        DIN din = 13;
-        PPNet ppnet = 14;
+        DLRM dlrm = 13;
+
+        DIN din = 14;
+
+        PPNet ppnet = 15;
     }
 }
