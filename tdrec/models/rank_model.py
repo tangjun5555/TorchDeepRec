@@ -41,7 +41,7 @@ class RankModel(BaseModel):
 
     def init_loss(self) -> None:
         self._loss_modules["binary_cross_entropy"] = torch.nn.BCEWithLogitsLoss(
-            reduction="none" if self._sample_weight_name else "mean",
+            reduction="none" if self._sample_weight else "mean",
         )
 
     def compute_loss(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
@@ -51,7 +51,7 @@ class RankModel(BaseModel):
         losses = {}
         loss_name = "binary_cross_entropy"
         losses[loss_name] = self._loss_modules[loss_name](logits, label)
-        if self._sample_weight_name:
+        if self._sample_weight:
             loss_weight = batch[self._sample_weight]
             losses[loss_name] = torch.mean(losses[loss_name] * loss_weight)
         return losses
