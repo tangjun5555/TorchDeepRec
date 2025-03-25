@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from tdrec.protos.pipeline_pb2 import TrainConfig
 from tdrec.optimizer.lr_scheduler import BaseLR
 from tdrec.utils import checkpoint_util
+from tdrec.constant import Mode
 
 
 def _log_train(
@@ -33,7 +34,8 @@ def _log_train(
         f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Training Model",
         f"step:{step}",
         f"cost_time:{round(cost_time, 1)}m",
-        f"{lr_str} {' '.join(loss_strs)} total_loss: {total_loss:.5f}",
+        f"{lr_str}",
+        f"{' '.join(loss_strs)} total_loss: {total_loss:.5f}",
     )
 
 
@@ -94,15 +96,14 @@ def evaluate_model(model: torch.nn.Module,
                    model_dir: str,
                    eval_result_filename: str,
                    global_step: int,
+                   mode=Mode.TRAIN,
                    ) -> Dict[str, torch.Tensor]:
     model.eval()
     _model = model.model
     eval_iterator = iter(eval_dataloader)
     step_iter = itertools.count(0)
 
-    desc_suffix = ""
-    if global_step:
-        desc_suffix += f" model-{global_step}"
+    desc_suffix = f"model-{global_step}"
 
     with torch.no_grad():
         for i_step in step_iter:
@@ -116,7 +117,7 @@ def evaluate_model(model: torch.nn.Module,
     metric_result = _model.compute_metric()
 
     metric_str = " ".join([f"{k}:{v:0.6f}" for k, v in metric_result.items()])
-    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Eval Result{desc_suffix}: {metric_str}")
+    print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {mode} Eval Result[{desc_suffix}]: {metric_str}")
     metric_result = {k: v.item() for k, v in metric_result.items()}
     with open(eval_result_filename, "w") as f:
         json.dump(metric_result, f, indent=4)

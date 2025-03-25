@@ -120,6 +120,7 @@ def evaluate(pipeline_config_path: str,
         model_dir=model_dir,
         eval_result_filename=os.path.join(pipeline_config.model_dir, "eval_result.txt"),
         global_step=global_step,
+        mode=Mode.EVALUATE,
     )
 
 
