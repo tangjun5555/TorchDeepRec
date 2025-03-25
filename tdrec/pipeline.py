@@ -62,9 +62,9 @@ def train_model(model: torch.nn.Module,
             except StopIteration:
                 i_step -= 1
                 break
-            total_loss, (losses, _, _) = model(batch)
 
             optimizer.zero_grad()
+            total_loss, (losses, _, _) = model(batch)
             total_loss.backward()
             optimizer.step()
             if not lr_scheduler.by_epoch:
