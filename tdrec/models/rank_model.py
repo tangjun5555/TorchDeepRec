@@ -25,10 +25,9 @@ class RankModel(BaseModel):
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Initialize RankModel.")
         self._num_class = 1
         self._label_name = labels[0]
-        self._sample_weight_name = sample_weight
 
         self.top_mlp = MLP(in_features=model_config.backbone.output_dim, **config_to_kwargs(self._model_config.top_mlp))
-        self.linear = torch.nn.Linear(self._model_config.top_mlp.hidden_units[-1], 1)
+        self.linear = torch.nn.Linear(self._model_config.top_mlp.hidden_units[-1], self._num_class)
 
     def predict(self, batch: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         predictions = dict()
@@ -46,15 +45,14 @@ class RankModel(BaseModel):
         )
 
     def compute_loss(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
-        losses = {}
-        pred = predictions["logits"]
+        logits = predictions["logits"]
         label = batch[self._label_name]
-
         label = label.to(torch.float32)
+        losses = {}
         loss_name = "binary_cross_entropy"
-        losses[loss_name] = self._loss_modules[loss_name](pred, label)
+        losses[loss_name] = self._loss_modules[loss_name](logits, label)
         if self._sample_weight_name:
-            loss_weight = batch[self._sample_weight_name]
+            loss_weight = batch[self._sample_weight]
             losses[loss_name] = torch.mean(losses[loss_name] * loss_weight)
         return losses
 
