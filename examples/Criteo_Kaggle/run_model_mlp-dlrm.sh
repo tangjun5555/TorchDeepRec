@@ -23,3 +23,7 @@ python -m tdrec.main \
   --pipeline_config_path=model_mlp-dlrm.config \
   --eval_input_path=${data_dir}/Criteo_Kaggle_split_04_T
 # Mode.EVALUATE Eval Result[model-3910]: auc:0.669516 copc:1.191942
+
+python -m tdrec.main \
+  --task_type=export \
+  --pipeline_config_path=model_mlp-dlrm.config

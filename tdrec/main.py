@@ -5,6 +5,7 @@ import os
 import time
 import datetime
 
+import onnx
 import torch
 
 from tdrec.constant import Mode
@@ -160,6 +161,11 @@ def export(pipeline_config_path: str):
         export_file,
     )
     print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully export model to {export_file}.")
+
+    try:
+        onnx.checker.check_model(export_file)
+    except Exception as e:
+        print(f"The model is invalid: %s" % e)
 
 
 if __name__ == "__main__":

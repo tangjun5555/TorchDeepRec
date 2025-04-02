@@ -50,4 +50,4 @@ python -m tdrec.main \
 
 python -m tdrec.main \
   --task_type=export \
-  --pipeline_config_path=model_mlp_v1.config
+  --pipeline_config_path=model_mlp.config

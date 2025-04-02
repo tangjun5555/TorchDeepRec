@@ -11,3 +11,7 @@ python -m tdrec.main \
   --pipeline_config_path=model_mlp-fm.config \
   --eval_input_path=${data_dir}/Criteo_Kaggle_split_04_T
 # Eval Result model-1955: auc:0.658735 copc:0.925867
+
+python -m tdrec.main \
+  --task_type=export \
+  --pipeline_config_path=model_mlp-fm.config
