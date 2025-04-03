@@ -2,7 +2,7 @@
 
 import torch
 from abc import abstractmethod
-from typing import List, Any, Dict, Optional
+from typing import List, Dict, Optional
 
 from tdrec.protos.model_pb2 import ModelConfig
 from tdrec.features.feature import BaseFeature
@@ -20,9 +20,8 @@ class BaseModel(torch.nn.Module, metaclass=_meta_cls):
                  features: List[BaseFeature],
                  labels: List[str],
                  sample_weight: str = None,
-                 **kwargs: Any,
                  ):
-        super().__init__(**kwargs)
+        super().__init__()
         self._base_model_config = model_config
         self._features = torch.nn.ModuleList(features)
         self._labels = labels

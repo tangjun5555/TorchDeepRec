@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import List, Any, Dict
+from typing import List, Dict
 import datetime
 
 import torch
@@ -19,9 +19,8 @@ class RankModel(BaseModel):
                  features: List[BaseFeature],
                  labels: List[str],
                  sample_weight: str = None,
-                 **kwargs: Any,
                  ):
-        super().__init__(model_config, features, labels, sample_weight, **kwargs)
+        super().__init__(model_config, features, labels, sample_weight)
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Initialize RankModel.")
         self._num_class = 1
         self._label_name = labels[0]
