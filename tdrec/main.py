@@ -159,6 +159,7 @@ def export(pipeline_config_path: str):
         model,
         dummy_inputs,
         export_file,
+        verbose=True,
     )
     print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully export model to {export_file}.")
 
