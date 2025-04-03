@@ -34,6 +34,13 @@ class MMoE(torch.nn.Module):
             [torch.nn.Linear(gate_final_in, num_expert) for _ in range(num_task)]
         )
 
+    @property
+    def output_dim(self) -> int:
+        """
+        Output dimension of the module.
+        """
+        return self.expert_mlps[0].hidden_units[-1]
+
     def forward(self, inputs: torch.Tensor) -> List[torch.Tensor]:
         expert_fea_list = []
         for i in range(self.num_expert):

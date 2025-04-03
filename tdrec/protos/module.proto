@@ -37,3 +37,15 @@ message MMoE {
     required MLP expert_mlp = 3;
     optional MLP gate_mlp = 4;
 }
+
+message DBMTL {
+    repeated string task_names = 1;
+    repeated string relation_names = 2;
+    required MLP task_mlp = 3;
+    optional MMoE mmoe = 4;
+}
+
+message ESMM {
+    required MLP task_mlp = 1;
+    optional MMoE mmoe = 2;
+}

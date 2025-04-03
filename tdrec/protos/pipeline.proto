@@ -9,9 +9,9 @@ import "tdrec/protos/feature.proto";
 message PipelineConfig {
     required string model_dir = 1;
 
-    optional TrainConfig train_config = 2;
+    required TrainConfig train_config = 2;
 
-    optional DatasetConfig dataset_config = 3;
+    required DatasetConfig dataset_config = 3;
 
     required FeatureConfig feature_config = 4;
 
