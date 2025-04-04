@@ -112,13 +112,15 @@ def evaluate_model(model: torch.nn.Module,
             except StopIteration:
                 i_step -= 1
                 break
-            _, (_, predictions, _) = model(batch)
+            _, (losses, predictions, _) = model(batch)
             _model.update_metric(batch, predictions)
     metric_result = _model.compute_metric()
 
     metric_str = " ".join([f"{k}:{v:0.6f}" for k, v in metric_result.items()])
     print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {mode} Eval Result[{desc_suffix}]: {metric_str}")
     metric_result = {k: v.item() for k, v in metric_result.items()}
+    for k, v in losses.items():
+        metric_result[k] = v.item()
     with open(eval_result_filename, "w") as f:
         json.dump(metric_result, f, indent=4)
     return metric_result

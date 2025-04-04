@@ -37,7 +37,7 @@ class RankModel(BaseModel):
         return predictions
 
     def init_loss(self) -> None:
-        loss_name = "bce_loss"
+        loss_name = "ce_loss"
         self._loss_modules[loss_name] = torch.nn.BCELoss(
             reduction="none" if self._sample_weight else "mean",
         )
@@ -46,7 +46,7 @@ class RankModel(BaseModel):
         probs = predictions["probs"]
         labels = batch[self._label_name].to(torch.float32)
         losses = {}
-        loss_name = "bce_loss"
+        loss_name = "ce_loss"
         losses[loss_name] = self._loss_modules[loss_name](probs, labels)
         if self._sample_weight:
             loss_weight = batch[self._sample_weight]
@@ -56,15 +56,14 @@ class RankModel(BaseModel):
     def init_metric(self) -> None:
         for metric_cfg in self._base_model_config.metrics:
             metric_type = metric_cfg.WhichOneof("metric")
-            metric_name = metric_type
             if metric_type == "auc":
-                self._metric_modules[metric_name] = torchmetrics.AUROC(task="binary")
+                self._metric_modules[metric_type] = torchmetrics.AUROC(task="binary")
             elif metric_type == "grouped_auc":
-                self._metric_modules[metric_name] = GroupedAUC()
+                self._metric_modules[metric_type] = GroupedAUC()
             elif metric_type == "copc":
-                self._metric_modules[metric_name] = COPC()
+                self._metric_modules[metric_type] = COPC()
             else:
-                raise ValueError(f"{metric_type} is not supported for this model")
+                raise ValueError(f"{metric_type} is not supported for this model.")
 
     def update_metric(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         metrics = {}
@@ -73,14 +72,13 @@ class RankModel(BaseModel):
         for metric_cfg in self._base_model_config.metrics:
             metric_type = metric_cfg.WhichOneof("metric")
             oneof_metric_cfg = getattr(metric_cfg, metric_type)
-            metric_name = metric_type
             if metric_type == "auc":
-                self._metric_modules[metric_name].update(probs, labels)
+                self._metric_modules[metric_type].update(probs, labels)
             elif metric_type == "grouped_auc":
                 grouping_key = batch[oneof_metric_cfg.grouping_key]
-                self._metric_modules[metric_name].update(probs, labels, grouping_key)
+                self._metric_modules[metric_type].update(probs, labels, grouping_key)
             elif metric_type == "copc":
-                self._metric_modules[metric_name].update(probs, labels)
+                self._metric_modules[metric_type].update(probs, labels)
             else:
-                raise ValueError(f"{metric_type} is not supported for this model")
+                raise ValueError(f"{metric_type} is not supported for this model.")
         return metrics
