@@ -88,5 +88,5 @@ class FeatureGroup(object):
                 values = self._features_dict[name].to_dense(values)
                 sequence_features.append(values)
         group_features[query_name] = torch.cat(query_features, dim=1)
-        group_features[sequence_name] = torch.cat(sequence_features, dim=1)
+        group_features[sequence_name] = torch.cat(sequence_features, dim=2)
         return group_features

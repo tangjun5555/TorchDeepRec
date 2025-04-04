@@ -38,7 +38,6 @@ class Backbone(torch.nn.Module):
             elif module_type == "din":
                 sequence_dim = self._get_block_input_dim(block_config)
                 self._block_modules[block_config.name] = DIN(sequence_dim=sequence_dim, query_dim=sequence_dim, **config_to_kwargs(module_config))
-
             else:
                 raise ValueError(
                     f"block[{block_config.name}] don't support [{module_type}] now."
