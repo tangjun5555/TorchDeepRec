@@ -23,7 +23,8 @@ class DBMTL(torch.nn.Module):
 
         self.mmoe = None
         if mmoe is not None:
-            self.mmoe = MMoE(in_features=in_features, **mmoe)
+            self.mmoe = MMoE(in_features=in_features, num_task=self.task_num, **mmoe)
+            in_features = self.mmoe.output_dim
 
         self.task_mlps = torch.nn.ModuleDict()
         for task_index in range(self.task_num):

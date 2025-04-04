@@ -9,9 +9,9 @@ from tdrec.modules.mlp import MLP
 class MMoE(torch.nn.Module):
     def __init__(self,
                  in_features: int,
-                 expert_mlp: Dict[str, Any],
-                 num_expert: int,
                  num_task: int,
+                 num_expert: int,
+                 expert_mlp: Dict[str, Any],
                  gate_mlp: Dict[str, Any] = None,
                  ):
         super().__init__()
@@ -39,7 +39,7 @@ class MMoE(torch.nn.Module):
         """
         Output dimension of the module.
         """
-        return self.expert_mlps[0].hidden_units[-1]
+        return self.expert_mlps[0].output_dim
 
     def forward(self, inputs: torch.Tensor) -> List[torch.Tensor]:
         expert_fea_list = []
