@@ -46,8 +46,8 @@ message MultiTaskRankModel {
 message TaskTower {
     // label for the task
     required string label_name = 1;
-    // label for the task
-    required uint32 tower_input_dim = 2;
+    // input dim for the task
+    optional uint32 tower_input_dim = 2;
     // task specific mlp
     required MLP mlp = 3;
     // training loss weights

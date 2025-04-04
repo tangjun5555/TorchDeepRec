@@ -33,9 +33,8 @@ message PPNet {
 
 message MMoE {
     required uint32 num_expert = 1;
-    required uint32 num_task = 2;
-    required MLP expert_mlp = 3;
-    optional MLP gate_mlp = 4;
+    required MLP expert_mlp = 2;
+    optional MLP gate_mlp = 3;
 }
 
 message DBMTL {
@@ -46,6 +45,6 @@ message DBMTL {
 }
 
 message ESMM {
-    required MLP task_mlp = 1;
-    optional MMoE mmoe = 2;
+    optional MMoE mmoe = 1;
+    optional MLP task_mlp = 2;
 }
