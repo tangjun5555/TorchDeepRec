@@ -25,7 +25,7 @@ class DIN(torch.nn.Module):
         assert query_dim == sequence_dim
 
         self.mlp = MLP(in_features=sequence_dim * 4, **attn_mlp)
-        self.linear = torch.nn.Linear(self.mlp.hidden_units[-1], 1)
+        self.linear = torch.nn.Linear(self.mlp.output_dim, 1)
 
         self._query_name = f"{feature_group}.query"
         self._sequence_name = f"{feature_group}.sequence"

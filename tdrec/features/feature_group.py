@@ -75,14 +75,16 @@ class FeatureGroup(object):
 
         query_features = []
         sequence_features = []
+        sequence_length = None
         for name in self._config.feature_names:
             values = batch[self._features_dict[name].input_name]
             if len(values.shape) == 1:
                 values = self._features_dict[name].to_dense(values)
                 query_features.append(values)
             else:
-                sequence_length = torch.count_nonzero(values, dim=1)
-                group_features[sequence_length_name] = sequence_length
+                if sequence_length is None:
+                    sequence_length = torch.count_nonzero(values, dim=1)
+                    group_features[sequence_length_name] = sequence_length
                 values = self._features_dict[name].to_dense(values)
                 sequence_features.append(values)
         group_features[query_name] = torch.cat(query_features, dim=1)
