@@ -150,10 +150,10 @@ def export(pipeline_config_path: str):
     )
 
     dummy_inputs, input_names = get_dummy_inputs(dataset_config)
-    dynamic_axes = dict()
-    for input_name in input_names:
-        dynamic_axes[input_name] = {0 : "batch_size"}
-    dynamic_axes["outputs"] = {0 : "batch_size"}
+    # dynamic_axes = dict()
+    # for input_name in input_names:
+    #     dynamic_axes[input_name] = {0 : "batch_size"}
+    # dynamic_axes["outputs"] = {0 : "batch_size"}
     export_file = os.path.join(export_dir, f"model-{int(time.time())}.onnx")
     torch.onnx.export(
         model,
@@ -169,6 +169,31 @@ def export(pipeline_config_path: str):
         print(f"The model is invalid: %s" % e)
 
 
+def inference(pipeline_config_path: str):
+    pipeline_config = config_util.load_pipeline_config(pipeline_config_path)
+    model_dir = pipeline_config.model_dir
+
+    dataset_config = pipeline_config.dataset_config
+    features = create_features(list(pipeline_config.feature_config.features))
+
+    model = create_model(
+        pipeline_config.model_config,
+        features,
+        list(dataset_config.label_fields),
+        sample_weight=dataset_config.sample_weight_field,
+    )
+    model = TrainWrapper(model)
+    checkpoint_util.restore_model(
+        checkpoint_dir=checkpoint_util.latest_checkpoint(model_dir)[0],
+        model=model,
+    )
+
+    from fastapi import FastAPI
+    import uvicorn
+
+    # async def predict(inputs: dict):
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
@@ -177,7 +202,7 @@ if __name__ == "__main__":
         type=str,
         required=True,
         help="Task type.",
-        choices=["train_and_evaluate", "evaluate", "export"],
+        choices=["train_and_evaluate", "evaluate", "export", "inference"],
     )
     parser.add_argument(
         "--pipeline_config_path",
@@ -212,5 +237,7 @@ if __name__ == "__main__":
         )
     elif args.task_type == "export":
         export(pipeline_config_path=args.pipeline_config_path)
+    elif args.task_type == "inference":
+        inference(pipeline_config_path=args.pipeline_config_path)
     else:
         raise NotImplementedError

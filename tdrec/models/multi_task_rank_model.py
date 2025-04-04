@@ -53,24 +53,27 @@ class MultiTaskRankModel(BaseModel):
         task_input_list = self._multi_task_model(backbone_output)
         for i, task_tower_cfg in enumerate(self._task_tower_cfgs):
             tower_output = self._task_tower[i](task_input_list[i])
-            predictions[task_tower_cfg.label_name + "_" +  "probs"] = torch.sigmoid(tower_output)
+            predictions[task_tower_cfg.label_name + "_" + "logits"] = tower_output
+            predictions[task_tower_cfg.label_name + "_" + "probs"] = torch.sigmoid(tower_output)
         return predictions
 
     def init_loss(self) -> None:
         for i, task_tower_cfg in enumerate(self._task_tower_cfgs):
             loss_name = task_tower_cfg.label_name + "_" + "ce_loss"
-            self._loss_modules[loss_name] = torch.nn.BCELoss(reduction="mean")
+            self._loss_modules[loss_name] = torch.nn.BCEWithLogitsLoss(reduction="mean")
 
     def compute_loss(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         losses = {}
         pre_probs = None
         for i, task_tower_cfg in enumerate(self._task_tower_cfgs):
-            probs = predictions[task_tower_cfg.label_name + "_" +  "probs"]
+            probs = predictions[task_tower_cfg.label_name + "_" + "probs"]
+            logits = predictions[task_tower_cfg.label_name + "_" + "logits"]
             labels = batch[task_tower_cfg.label_name].to(torch.float32)
             loss_name = task_tower_cfg.label_name + "_" + "ce_loss"
             if self._multi_task_model_type == "esmm" and i > 0:
                 probs = probs * pre_probs
-            losses[loss_name] = self._loss_modules[loss_name](probs, labels) * task_tower_cfg.weight
+                logits = torch.logit(probs)
+            losses[loss_name] = self._loss_modules[loss_name](logits, labels) * task_tower_cfg.weight
             pre_probs = probs
         return losses
 

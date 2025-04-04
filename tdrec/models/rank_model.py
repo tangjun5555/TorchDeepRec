@@ -33,21 +33,22 @@ class RankModel(BaseModel):
         output = self.top_mlp(backbone_output)
         output = self.linear(output)
         output = torch.squeeze(output, dim=1)
+        predictions["logits"] = output
         predictions["probs"] = torch.sigmoid(output)
         return predictions
 
     def init_loss(self) -> None:
         loss_name = "ce_loss"
-        self._loss_modules[loss_name] = torch.nn.BCELoss(
+        self._loss_modules[loss_name] = torch.nn.BCEWithLogitsLoss(
             reduction="none" if self._sample_weight else "mean",
         )
 
     def compute_loss(self, batch: Dict[str, torch.Tensor], predictions: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
-        probs = predictions["probs"]
+        logits = predictions["logits"]
         labels = batch[self._label_name].to(torch.float32)
         losses = {}
         loss_name = "ce_loss"
-        losses[loss_name] = self._loss_modules[loss_name](probs, labels)
+        losses[loss_name] = self._loss_modules[loss_name](logits, labels)
         if self._sample_weight:
             loss_weight = batch[self._sample_weight]
             losses[loss_name] = torch.mean(losses[loss_name] * loss_weight)

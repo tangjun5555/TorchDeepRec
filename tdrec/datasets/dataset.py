@@ -118,7 +118,7 @@ def get_dummy_inputs(dataset_config: DatasetConfig):
         else:
             raise ValueError(f"input_type:{input_field.input_type} is not supported.")
     for input_field in dataset_config.label_fields:
-        dummy_inputs[input_field] = torch.randint(low=1, high=100, size=(batch_size,))
+        dummy_inputs[input_field] = torch.randint(low=0, high=2, size=(batch_size,))
     if dataset_config.sample_weight_field:
         dummy_inputs[dataset_config.sample_weight_field] = torch.randn((batch_size,))
     return {"inputs": dummy_inputs}, input_names
