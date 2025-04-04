@@ -22,14 +22,14 @@ class FeatureGroup(object):
         res = 0
         if self._config.group_type == FeatureGroupType.Deep:
             for name in self._config.feature_names:
-                res += self._features_dict[name].output_dim
+                res += self._features_dict[name].output_dim()
         elif self._config.group_type == FeatureGroupType.Deep_3D:
             for name in self._config.feature_names:
-                res += self._features_dict[name].output_dim
+                res += self._features_dict[name].output_dim()
                 break
         elif self._config.group_type == FeatureGroupType.Sequence_Attention:
             for name in self._config.feature_names:
-                res += self._features_dict[name].output_dim
+                res += self._features_dict[name].output_dim()
             res = res // 2
         else:
             raise ValueError(
