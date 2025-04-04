@@ -49,7 +49,6 @@ class MLP(torch.nn.Module):
         self.hidden_units = hidden_units
         self.activation = activation
         self.use_bn = use_bn
-        self.output_dim = self.hidden_units[-1]
 
         self.mlp = torch.nn.Sequential(
             *[
@@ -62,6 +61,10 @@ class MLP(torch.nn.Module):
                 for i in range(len(hidden_units))
             ]
         )
+
+    @property
+    def output_dim(self) -> int:
+        return self.hidden_units[-1]
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         """

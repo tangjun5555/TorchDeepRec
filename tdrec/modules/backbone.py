@@ -31,12 +31,10 @@ class Backbone(torch.nn.Module):
             module_config = getattr(block_config, module_type)
             if module_type == "mlp":
                 self._block_modules[block_config.name] = MLP(in_features=self._get_block_input_dim(block_config), **config_to_kwargs(module_config))
-
             elif module_type == "fm":
                 self._block_modules[block_config.name] = FactorizationMachine()
             elif module_type == "dlrm":
                 self._block_modules[block_config.name] = DLRM()
-
             elif module_type == "din":
                 sequence_dim = self._get_block_input_dim(block_config)
                 self._block_modules[block_config.name] = DIN(sequence_dim=sequence_dim, query_dim=sequence_dim, **config_to_kwargs(module_config))
@@ -61,7 +59,7 @@ class Backbone(torch.nn.Module):
     def _get_block_input_dim(self, block_config: BlockConfig):
         res = 0
         for input_name in block_config.feature_group_names:
-            res += self._feature_group_dict[input_name].output_dim()
+            res += self._feature_group_dict[input_name].output_dim
         return res
 
     def build_block_output(self, block_config: BlockConfig, feature_group_values: Dict[str, Any]) -> torch.Tensor:

@@ -3,6 +3,7 @@
 from typing import List, Dict
 
 import torch
+
 from tdrec.protos.model_pb2 import FeatureGroupConfig, FeatureGroupType
 from tdrec.features.feature import BaseFeature
 
@@ -14,16 +15,22 @@ class FeatureGroup(object):
                 ):
         self._config = feature_group_config
         self._features_dict = {base_feature.name:base_feature for base_feature in features}
+        self.num_feature = len(self._config.feature_names)
 
+    @property
     def output_dim(self) -> int:
         res = 0
         if self._config.group_type == FeatureGroupType.Deep:
             for name in self._config.feature_names:
-                res += self._features_dict[name].output_dim()
+                res += self._features_dict[name].output_dim
+        elif self._config.group_type == FeatureGroupType.Deep_3D:
+            for name in self._config.feature_names:
+                res += self._features_dict[name].output_dim
+                break
         elif self._config.group_type == FeatureGroupType.Sequence_Attention:
             for name in self._config.feature_names:
-                res += self._features_dict[name].output_dim()
-                break
+                res += self._features_dict[name].output_dim
+            res = res // 2
         else:
             raise ValueError(
                 f"feature_group[{self._config.group_name}] don't support [{self._config.group_type}] now."
