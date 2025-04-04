@@ -70,7 +70,7 @@ class MultiTaskRankModel(BaseModel):
             loss_name = task_tower_cfg.label_name + "_" + "ce_loss"
             if self._multi_task_model_type == "esmm" and i > 0:
                 probs = probs * pre_probs
-            losses[loss_name] = self._loss_modules[loss_name](probs, labels)
+            losses[loss_name] = self._loss_modules[loss_name](probs, labels) * task_tower_cfg.weight
             pre_probs = probs
         return losses
 
