@@ -43,7 +43,7 @@ columns = [
         "user_id", "gender", "visit_city", "avg_price", "is_supervip", "ctr_30", "ord_30", "total_amt_30",
         "shop_id", "item_id", "city_id", "district_id", "shop_aoi_id", "shop_geohash_6", "shop_geohash_12", "brand_id", "category_1_id", "merge_standard_food_id", "rank_7", "rank_30", "rank_90",
         "shop_id_list", "item_id_list", "category_1_id_list", "merge_standard_food_id_list", "brand_id_list", "price_list", "shop_aoi_id_list", "shop_geohash6_list", "timediff_list", "hours_list", "time_type_list", "weekdays_list",
-        "times", "hours", "time_type", "weekdays", "weekdays"
+        "times", "hours", "time_type", "weekdays", "geohash12",
 ]
 
 
@@ -72,30 +72,35 @@ if __name__ == '__main__':
 
             res = [
                 int(label),
+
                 to_int_fea(split[columns.index("user_id")], "user_id"),
                 int(split[columns.index("gender")]) if split[columns.index("gender")] and int(split[columns.index("gender")])>0 else 0,
-                int(split[columns.index("visit_city")]) if split[columns.index("visit_city")] else 0,
                 int(split[columns.index("is_supervip")]) if split[columns.index("is_supervip")] else 0,
+                float(split[columns.index("ctr_30")]) if split[columns.index("ctr_30")] else 0.0,
 
                 to_int_fea(split[columns.index("shop_id")], "shop_id"),
                 to_int_fea(split[columns.index("item_id")], "item_id"),
                 int(split[columns.index("category_1_id")]),
                 int(split[columns.index("brand_id")]) if split[columns.index("brand_id")] else 0,
-
-                limit_list_length(to_list_int_fea(split[columns.index("shop_id_list")], "shop_id_list"), 20),
-                limit_list_length(to_list_int_fea(split[columns.index("item_id_list")], "item_id_list"), 20),
-                limit_list_length(split[columns.index("category_1_id_list")], 20),
-                limit_list_length(split[columns.index("brand_id_list")], 20),
+                int(split[columns.index("rank_7")]) if split[columns.index("rank_7")] and int(split[columns.index("rank_7")])>0 else 0,
 
                 int(split[columns.index("hours")]),
                 to_int_fea(split[columns.index("time_type")], "time_type", vocab_size=100),
+                int(split[columns.index("visit_city")]) if split[columns.index("visit_city")] else 0,
+                to_int_fea(split[columns.index("geohash12")], "geohash12"),
+                int(split[columns.index("city_id")]) if split[columns.index("city_id")] and int(split[columns.index("city_id")])>0 else 0,
+                int(split[columns.index("district_id")]) if split[columns.index("district_id")] and int(split[columns.index("district_id")])>0 else 0,
+                to_int_fea(split[columns.index("shop_aoi_id")], "shop_aoi_id"),
+                to_int_fea(split[columns.index("shop_geohash_6")], "shop_geohash_6"),
+                to_int_fea(split[columns.index("shop_geohash_12")], "shop_geohash_12"),
+
+                limit_list_length(to_list_int_fea(split[columns.index("shop_id_list")], "shop_id_list"), 50),
+                limit_list_length(to_list_int_fea(split[columns.index("item_id_list")], "item_id_list"), 50),
             ]
 
             if idx % 10000 == 0:
-                print(res[-6], len(res[-6].split(";")))
-                print(res[-5], len(res[-5].split(";")))
-                print(res[-4], len(res[-4].split(";")))
-                print(res[-3], len(res[-3].split(";")))
+                print(res[-2], len(res[-2].split(";")))
+                print(res[-1], len(res[-1].split(";")))
 
             fout.write(",".join([str(x) for x in res]) + "\n")
             if idx % 10000 == 0:
