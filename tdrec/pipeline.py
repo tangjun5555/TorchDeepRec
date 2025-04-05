@@ -86,6 +86,7 @@ def train_model(model: torch.nn.Module,
         os.path.join(model_dir, f"model.ckpt-{i_step}"),
         model,
         optimizer,
+        lr_scheduler,
     )
     checkpoint_util.keep_checkpoint_max(model_dir, train_config.keep_checkpoint_max)
     return i_step

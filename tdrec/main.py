@@ -58,6 +58,7 @@ def train_and_evaluate(pipeline_config_path: str,
         checkpoint_dir=checkpoint_util.latest_checkpoint(model_dir)[0],
         model=model,
         optimizer=optimizer,
+        lr_scheduler=lr_scheduler,
     )
     global_step = checkpoint_util.latest_checkpoint(model_dir)[1]
     print(f"global_step:{global_step}")

@@ -9,12 +9,13 @@ import shutil
 import torch
 
 
-def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None):
+def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None, lr_scheduler = None):
     if not os.path.exists(checkpoint_dir):
         os.makedirs(checkpoint_dir)
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] create dir {checkpoint_dir}")
     model_ckpt_path = os.path.join(checkpoint_dir, "model")
     optim_ckpt_path = os.path.join(checkpoint_dir, "optimizer")
+    lr_scheduler_ckpt_path = os.path.join(checkpoint_dir, "lr_scheduler")
     torch.save(model.state_dict(), model_ckpt_path)
     # 打印模型的状态字典
     print("Model's state_dict:")
@@ -30,22 +31,30 @@ def save_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.opt
         var_name = "param_groups"
         print(var_name, "\t", optimizer.state_dict()[var_name])
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully saved optimizer checkpoint to {checkpoint_dir}.")
+    if lr_scheduler:
+        torch.save(lr_scheduler.state_dict(), lr_scheduler_ckpt_path)
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully saved lr_scheduler checkpoint to {checkpoint_dir}.")
 
 
-def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None):
+def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None, lr_scheduler = None):
     if not checkpoint_dir:
         return
     model_ckpt_path = os.path.join(checkpoint_dir, "model")
     optim_ckpt_path = os.path.join(checkpoint_dir, "optimizer")
+    lr_scheduler_ckpt_path = os.path.join(checkpoint_dir, "lr_scheduler")
     if os.path.exists(model_ckpt_path):
-        ckpt = torch.load(model_ckpt_path, weights_only=True)
+        ckpt = torch.load(model_ckpt_path)
         model.load_state_dict(ckpt)
         model.eval()
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored model state from {checkpoint_dir}.")
     if optimizer and os.path.exists(optim_ckpt_path):
-        ckpt = torch.load(optim_ckpt_path, weights_only=True)
+        ckpt = torch.load(optim_ckpt_path)
         optimizer.load_state_dict(ckpt)
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored optimizer state from {checkpoint_dir}.")
+    if lr_scheduler and os.path.exists(lr_scheduler_ckpt_path):
+        ckpt = torch.load(lr_scheduler_ckpt_path)
+        lr_scheduler.load_state_dict(ckpt)
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored lr_scheduler state from {checkpoint_dir}.")
 
 
 def get_checkpoint_step(ckpt_path: str) -> int:
