@@ -20,11 +20,22 @@ def to_int_fea(value: str, key: str, vocab_size: int=100*10000) -> int:
 
 
 def to_list_int_fea(value: str, key: str, sep=";", vocab_size: int=100*10000) -> str:
-    split = value.strip().split("sep")
+    split = value.strip().split(sep)
     res = []
     for x in split:
         res.append(to_int_fea(x, key, vocab_size))
     return sep.join([str(x) for x in res])
+
+
+def limit_list_length(value: str, max_length: int, sep=";"):
+    split = value.strip().split(sep)
+    res = split[:max_length]
+    while len(res) < max_length:
+        res.append("0")
+    res = sep.join(res)
+    if res.startswith(sep):
+        res = "0" + res
+    return res
 
 
 columns = [
@@ -62,7 +73,7 @@ if __name__ == '__main__':
             res = [
                 int(label),
                 to_int_fea(split[columns.index("user_id")], "user_id"),
-                int(split[columns.index("gender")]) if split[columns.index("gender")] else 0,
+                int(split[columns.index("gender")]) if split[columns.index("gender")] and int(split[columns.index("gender")])>0 else 0,
                 int(split[columns.index("visit_city")]) if split[columns.index("visit_city")] else 0,
                 int(split[columns.index("is_supervip")]) if split[columns.index("is_supervip")] else 0,
 
@@ -71,14 +82,20 @@ if __name__ == '__main__':
                 int(split[columns.index("category_1_id")]),
                 int(split[columns.index("brand_id")]) if split[columns.index("brand_id")] else 0,
 
-                to_list_int_fea(split[columns.index("shop_id_list")], "shop_id_list"),
-                to_list_int_fea(split[columns.index("item_id_list")], "item_id_list"),
-                split[columns.index("category_1_id_list")],
-                split[columns.index("brand_id_list")],
+                limit_list_length(to_list_int_fea(split[columns.index("shop_id_list")], "shop_id_list"), 20),
+                limit_list_length(to_list_int_fea(split[columns.index("item_id_list")], "item_id_list"), 20),
+                limit_list_length(split[columns.index("category_1_id_list")], 20),
+                limit_list_length(split[columns.index("brand_id_list")], 20),
 
                 int(split[columns.index("hours")]),
                 to_int_fea(split[columns.index("time_type")], "time_type", vocab_size=100),
             ]
+
+            if idx % 10000 == 0:
+                print(res[-6], len(res[-6].split(";")))
+                print(res[-5], len(res[-5].split(";")))
+                print(res[-4], len(res[-4].split(";")))
+                print(res[-3], len(res[-3].split(";")))
 
             fout.write(",".join([str(x) for x in res]) + "\n")
             if idx % 10000 == 0:
