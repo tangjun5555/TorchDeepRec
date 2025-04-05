@@ -31,6 +31,10 @@ class DIN(torch.nn.Module):
         self._sequence_name = f"{feature_group}.sequence"
         self._sequence_length_name = f"{feature_group}.sequence_length"
 
+    @property
+    def output_dim(self) -> int:
+        return self._sequence_dim * 2
+
     def forward(self, inputs: Dict[str, torch.Tensor]) -> torch.Tensor:
         query = inputs[self._query_name]
         sequence = inputs[self._sequence_name]
@@ -54,5 +58,6 @@ class DIN(torch.nn.Module):
         scores = torch.where(sequence_mask.unsqueeze(1), attn_output, padding)
         scores = torch.softmax(scores, dim=-1)
         outputs = torch.matmul(scores, sequence).squeeze(1)
+        outputs = torch.cat([outputs, query], dim=1)
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DIN outputs.size:{outputs.size()}.")
         return outputs
