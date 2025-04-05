@@ -43,16 +43,16 @@ def restore_model(checkpoint_dir: str, model: torch.nn.Module, optimizer: torch.
     optim_ckpt_path = os.path.join(checkpoint_dir, "optimizer")
     lr_scheduler_ckpt_path = os.path.join(checkpoint_dir, "lr_scheduler")
     if os.path.exists(model_ckpt_path):
-        ckpt = torch.load(model_ckpt_path)
+        ckpt = torch.load(model_ckpt_path, weights_only=True)
         model.load_state_dict(ckpt)
         model.eval()
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored model state from {checkpoint_dir}.")
     if optimizer and os.path.exists(optim_ckpt_path):
-        ckpt = torch.load(optim_ckpt_path)
+        ckpt = torch.load(optim_ckpt_path, weights_only=True)
         optimizer.load_state_dict(ckpt)
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored optimizer state from {checkpoint_dir}.")
     if lr_scheduler and os.path.exists(lr_scheduler_ckpt_path):
-        ckpt = torch.load(lr_scheduler_ckpt_path)
+        ckpt = torch.load(lr_scheduler_ckpt_path, weights_only=True)
         lr_scheduler.load_state_dict(ckpt)
         print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully restored lr_scheduler state from {checkpoint_dir}.")
 
