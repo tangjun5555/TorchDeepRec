@@ -54,5 +54,5 @@ class DIN(torch.nn.Module):
         scores = torch.where(sequence_mask.unsqueeze(1), attn_output, padding)
         scores = torch.softmax(scores, dim=-1)
         outputs = torch.matmul(scores, sequence).squeeze(1)
-        f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DIN outputs.size:{outputs.size()}."
+        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DIN outputs.size:{outputs.size()}.")
         return outputs

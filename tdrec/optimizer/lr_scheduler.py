@@ -38,16 +38,18 @@ class ExponentialDecayLR(BaseLR):
                  min_learning_rate: float = 0.0,
                  by_epoch: bool = False
                  ) -> None:
+        super().__init__(optimizer, by_epoch)
+        print(f"Using ExponentialDecayLR, decay_steps:{decay_steps}, decay_rate:{decay_rate}.")
+
         self._decay_steps = decay_steps
         self._decay_rate = decay_rate
         self._min_learning_rate = min_learning_rate
-        super().__init__(optimizer, by_epoch)
-
-        print("Using ExponentialDecayLR.")
 
     def get_lr(self):
         step_count = max(self._step_count - 1, 0)
         p = step_count / self._decay_steps
+        print(f"step_count:{step_count}, p:{p}")
+        p = math.floor(p)
         scale = math.pow(self._decay_rate, p)
         lr = [
             max(base_lr * scale, self._min_learning_rate)
