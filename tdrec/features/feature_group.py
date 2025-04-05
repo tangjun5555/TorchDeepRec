@@ -83,7 +83,8 @@ class FeatureGroup(object):
                 query_features.append(values)
             else:
                 if sequence_length is None:
-                    sequence_length = torch.count_nonzero(values, dim=1)
+                    mask = values > 0
+                    sequence_length = torch.sum(mask, dim=1)
                     group_features[sequence_length_name] = sequence_length
                 values = self._features_dict[name].to_dense(values)
                 sequence_features.append(values)

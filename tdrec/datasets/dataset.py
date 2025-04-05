@@ -105,14 +105,14 @@ def get_dummy_inputs(dataset_config: DatasetConfig):
         if input_field.input_type == FieldType.DOUBLE:
             dummy_inputs[input_field.input_name] = torch.randn((batch_size, 1))
         elif input_field.input_type == FieldType.INT:
-            dummy_inputs[input_field.input_name] = torch.randint(low=1, high=100, size=(batch_size,))
-        elif input_field.input_type == FieldType.String:
+            dummy_inputs[input_field.input_name] = torch.randint(low=0, high=2, size=(batch_size,))
+        elif input_field.input_type == FieldType.STRING:
             assert input_field.split_length > 0
             assert input_field.sub_type in ["DOUBLE", "INT"]
             if input_field.sub_type == "DOUBLE":
                 dummy_inputs[input_field.input_name] = torch.randn((batch_size, input_field.split_length))
             elif input_field.sub_type == "INT":
-                dummy_inputs[input_field.input_name] = torch.randint(low=1, high=100, size=(batch_size, input_field.split_length))
+                dummy_inputs[input_field.input_name] = torch.randint(low=0, high=2, size=(batch_size, input_field.split_length))
             else:
                 raise ValueError(f"sub_type:{input_field.sub_type} is not supported.")
         else:
