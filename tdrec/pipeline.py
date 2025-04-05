@@ -88,6 +88,12 @@ def train_model(model: torch.nn.Module,
         optimizer,
     )
     checkpoint_util.keep_checkpoint_max(model_dir, train_config.keep_checkpoint_max)
+
+    train_info = dict()
+    train_info["lr"] = optimizer.param_groups[0]['lr']
+    train_info_filename = os.path.join(model_dir, "train_info.txt")
+    with open(train_info_filename, "w") as f:
+        json.dump(train_info, f, indent=4)
     return i_step
 
 
