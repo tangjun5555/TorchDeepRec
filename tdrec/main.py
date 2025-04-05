@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import json
 import os
 import time
 import datetime
@@ -53,13 +52,6 @@ def train_and_evaluate(pipeline_config_path: str,
     )
     model = TrainWrapper(model)
     optimizer_cls, optimizer_kwargs = create_optimizer(pipeline_config.train_config.optimizer_config)
-    train_info_filename = os.path.join(model_dir, "train_info.txt")
-    if os.path.exists(train_info_filename):
-        with open(train_info_filename, "r") as f:
-            train_info = json.load(f)
-            lr = train_info["lr"]
-            optimizer_kwargs["lr"] = lr
-            print(f"using lr:{lr}")
     optimizer = optimizer_cls(params=model.model.parameters(), **optimizer_kwargs)
     lr_scheduler = create_scheduler(optimizer, pipeline_config.train_config.optimizer_config)
     checkpoint_util.restore_model(
