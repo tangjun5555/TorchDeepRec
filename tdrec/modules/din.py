@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from typing import Dict, Any
-import datetime
 
 import torch
 from tdrec.modules.mlp import MLP
@@ -59,5 +58,4 @@ class DIN(torch.nn.Module):
         scores = torch.softmax(scores, dim=-1)
         outputs = torch.matmul(scores, sequence).squeeze(1)
         outputs = torch.cat([outputs, query], dim=1)
-        print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DIN outputs.size:{outputs.size()}.")
         return outputs

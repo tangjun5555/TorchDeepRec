@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from typing import Dict, Any, List
+import datetime
 
 import torch
 from tdrec.modules.mlp import MLP
@@ -55,6 +56,7 @@ class MMoE(torch.nn.Module):
                 gate = inputs
             gate = self.gate_finals[i](gate)
             gate = torch.softmax(gate, dim=1).unsqueeze(1)
+            print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] MMoE gate weight:{torch.mean(gate.squeeze(1), dim=0)}.")
             task_input = torch.matmul(gate, expert_feas).squeeze(1)
             result.append(task_input)
         return result
