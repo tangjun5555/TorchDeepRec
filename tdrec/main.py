@@ -150,24 +150,25 @@ def export(pipeline_config_path: str):
         model=model,
     )
 
-    dummy_inputs, input_names = get_dummy_inputs(dataset_config)
-    # dynamic_axes = dict()
-    # for input_name in input_names:
-    #     dynamic_axes[input_name] = {0 : "batch_size"}
-    # dynamic_axes["outputs"] = {0 : "batch_size"}
-    export_file = os.path.join(export_dir, f"model-{int(time.time())}.onnx")
-    torch.onnx.export(
-        model,
-        dummy_inputs,
-        export_file,
-        verbose=True,
-    )
+    export_config = pipeline_config.export_config
+    if export_config.export_type == "jit":
+        export_file = os.path.join(export_dir, f"model-{int(time.time())}.onnx")
+        scripted_model = torch.jit.script(model)
+        torch.jit.save(scripted_model, export_file)
+    else:
+        export_file = os.path.join(export_dir, f"model-{int(time.time())}.onnx")
+        dummy_inputs, input_names = get_dummy_inputs(dataset_config)
+        torch.onnx.export(
+            model,
+            dummy_inputs,
+            export_file,
+            verbose=True,
+        )
+        try:
+            onnx.checker.check_model(export_file)
+        except Exception as e:
+            print(f"The model is invalid: %s" % e)
     print(f"[INFO] [{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Successfully export model to {export_file}.")
-
-    try:
-        onnx.checker.check_model(export_file)
-    except Exception as e:
-        print(f"The model is invalid: %s" % e)
 
 
 def inference(pipeline_config_path: str):

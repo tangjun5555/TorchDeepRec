@@ -11,6 +11,8 @@ message PipelineConfig {
 
     required TrainConfig train_config = 2;
 
+    required ExportConfig export_config = 6;
+
     required DatasetConfig dataset_config = 3;
 
     required FeatureConfig feature_config = 4;
@@ -27,4 +29,8 @@ message TrainConfig {
     optional uint32 log_step_count_steps = 3 [default = 1000];
     // Max checkpoints to keep
     optional uint32 keep_checkpoint_max = 4 [default = 10];
+}
+
+message ExportConfig {
+    optional string export_type = 1 [default = "onnx"];
 }
