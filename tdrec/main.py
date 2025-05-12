@@ -152,7 +152,7 @@ def export(pipeline_config_path: str):
 
     export_config = pipeline_config.export_config
     if export_config.export_type == "jit":
-        export_file = os.path.join(export_dir, f"model-{int(time.time())}.onnx")
+        export_file = os.path.join(export_dir, f"model-{int(time.time())}.pt")
         scripted_model = torch.jit.script(model)
         torch.jit.save(scripted_model, export_file)
     else:
