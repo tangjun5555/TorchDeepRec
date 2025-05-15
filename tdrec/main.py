@@ -151,13 +151,15 @@ def export(pipeline_config_path: str):
     )
 
     export_config = pipeline_config.export_config
+    dummy_inputs, input_names = get_dummy_inputs(dataset_config)
+    print(f"dummy_inputs:{dummy_inputs}")
+    print(f"input_names:{input_names}")
     if export_config.export_type == "jit":
         export_file = os.path.join(export_dir, f"model-{int(time.time())}.pt")
-        scripted_model = torch.jit.script(model)
+        scripted_model = torch.jit.trace(model, dummy_inputs["inputs"], strict=False)
         torch.jit.save(scripted_model, export_file)
     else:
         export_file = os.path.join(export_dir, f"model-{int(time.time())}.onnx")
-        dummy_inputs, input_names = get_dummy_inputs(dataset_config)
         torch.onnx.export(
             model,
             dummy_inputs,
