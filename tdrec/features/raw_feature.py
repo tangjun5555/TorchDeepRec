@@ -32,7 +32,7 @@ class RawFeature(BaseFeature):
             values = values.cast(pa.float64(), safe=False)
             res = np.array(values)
             res = np.reshape(res, (-1, 1))
-        elif pa.types.is_integer(values.type):
+        elif pa.types.is_string(values.type):
             res = []
             for row in values:
                 res.append(to_float_list(str(row), self.config.separator))

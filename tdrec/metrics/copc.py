@@ -15,10 +15,15 @@ class COPC(Metric):
 
         self.add_state("preds_sum", default=torch.zeros(1, dtype=torch.float), dist_reduce_fx="sum")
         self.add_state("target_sum", default=torch.zeros(1, dtype=torch.int), dist_reduce_fx="sum")
+        self.add_state("weight_sum", default=torch.zeros(1, dtype=torch.float), dist_reduce_fx="sum")
 
-    def update(self, preds: torch.Tensor, target: torch.Tensor) -> None:
+    def update(self, preds: torch.Tensor, target: torch.Tensor, weight: torch.Tenso = None) -> None:
         self.preds_sum += torch.sum(preds)
         self.target_sum += torch.sum(target)
+        if weight is None:
+            self.weight_sum += 0.0
+        else:
+            self.weight_sum += torch.sum(weight)
 
     def compute(self) -> torch.Tensor:
-        return self.preds_sum / self.target_sum
+        return self.preds_sum / (self.target_sum + self.weight_sum)
